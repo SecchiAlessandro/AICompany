@@ -165,14 +165,124 @@ Status definitions:
 
 ## Getting Started
 
-1. Create or use an existing workflow YAML in `workflows/`
-2. Ensure required templates exist in `templates/`
-3. Add relevant domain knowledge to `domain knowledge/`
-4. Run the orchestrator agent to execute the workflow
+### Prerequisites
+
+- **Node.js** (v18 or later) - Required for document generation dependencies
+- **Python 3** - Required for OKR checking and workflow automation
+- **Git** - For version control
+- **Claude Code** - [claude.ai/code](https://claude.ai/code)
+
+### Installation
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/SecchiAlessandro/AICompany.git
+   cd AICompany
+   ```
+
+2. **Install Node.js dependencies**
+   ```bash
+   npm install
+   ```
+   This installs:
+   - `docx` - Word document generation library
+   - `pptxgenjs` - PowerPoint presentation generation library
+
+3. **Verify installation**
+   ```bash
+   node -e "console.log('Node modules installed successfully')"
+   ```
+
+### Project Setup
+
+1. **Add domain knowledge** (optional)
+   - Place relevant domain-specific documents in `domain knowledge/` folder
+   - Supported formats: .md, .txt, .pdf, .docx
+
+2. **Create input templates** (optional)
+   - Add workflow input templates to `templates/` folder
+   - Examples: requirement specs, design templates, forms
+
+3. **Configure workflows**
+   - Create YAML workflow files in `workflows/` directory
+   - Or let the workflow-mapper agent create them from your requirements
+
+### Running Workflows
+
+1. **Execute a workflow with the orchestrator**
+   ```
+   @orchestrator workflows/<workflow-name>.yaml
+   ```
+
+2. **Create a new workflow from scratch**
+   ```
+   @workflow-mapper
+   ```
+   The agent will ask you questions to build the workflow structure.
+
+3. **View results**
+   - All outputs are stored in `results/` folder
+   - Summary of all agent activities is in `results/shared.md`
+
+### Workflow Examples
+
+**Example 1: Execute an existing workflow**
+```
+@orchestrator workflows/detail-design-phase.yaml
+```
+
+**Example 2: Create and execute a new workflow**
+1. Run: `@workflow-mapper`
+2. Answer the questions about roles, tools, and objectives
+3. The agent creates the YAML file automatically
+4. Run: `@orchestrator workflows/your-workflow-name.yaml`
+
+## Project Structure
+
+```
+AICompany/
+├── .claude/
+│   ├── agents/           # Core meta-agents (orchestrator, workflow-mapper, agent-factory)
+│   ├── rules/            # Behavior templates and execution rules
+│   ├── scripts/          # Python automation scripts (OKR checking)
+│   └── settings.json     # Claude Code configuration
+├── workflows/            # Workflow definitions (YAML files)
+├── templates/            # Input/output document templates
+├── domain knowledge/     # Domain-specific reference materials
+├── results/              # Generated outputs from workflow executions
+│   └── shared.md        # Consolidated summary of all agent outputs
+├── package.json          # Node.js dependencies
+├── package-lock.json     # Locked dependency versions
+├── README.md            # This file
+└── CLAUDE.md            # Claude Code instructions
+```
 
 ## Usage with Claude Code
 
 This project is designed to work with [Claude Code](https://claude.ai/code). The CLAUDE.md file provides context and instructions for Claude when working with this codebase.
+
+## Troubleshooting
+
+**Issue: `npm install` fails**
+- Ensure Node.js v18+ is installed: `node --version`
+- Try clearing npm cache: `npm cache clean --force`
+
+**Issue: Agents not executing**
+- Verify workflow YAML syntax is correct
+- Check that all required inputs exist in `templates/` folder
+- Ensure preconditions in the workflow are met
+
+**Issue: OKR check script errors**
+- Ensure Python 3 is installed: `python --version`
+- Install required Python packages: `pip install pyyaml`
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature-name`
+3. Commit changes: `git commit -m "Add feature"`
+4. Push to branch: `git push origin feature-name`
+5. Submit a pull request
 
 ## License
 
