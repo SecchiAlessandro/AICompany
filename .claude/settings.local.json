@@ -1,0 +1,34 @@
+{
+  "permissions": {
+    "allow": [
+      "Skill(document-skills:docx)",
+      "Bash(pandoc:*)",
+      "Bash(python:*)",
+      "Bash(pip install:*)",
+      "Bash(dir:*)",
+      "Bash(node:*)",
+      "Bash(npm install:*)",
+      "Bash(where:*)",
+      "Bash(bash:*)",
+      "Bash(jq:*)",
+      "Bash(winget install:*)",
+      "Bash(cmd /c \"dir C:\\\\Users\\\\AS0135\\\\AppData\\\\Local\\\\Microsoft\\\\WinGet\\\\Links /b\")",
+      "Bash(powershell:*)",
+      "Bash(winget list:*)",
+      "Bash(cmd /c \"where /r C:\\\\Users\\\\AS0135 jq.exe 2>nul\")",
+      "Bash(if not exist \"C:\\\\Users\\\\AS0135\\\\.claude\" mkdir \"C:\\\\Users\\\\AS0135\\\\.claude\")",
+      "Bash(curl:*)",
+      "Bash(cat:*)",
+      "Bash(git init:*)",
+      "Bash(git remote add:*)",
+      "Bash(git add:*)",
+      "Bash(if not exist \"C:\\\\AI_Projects\\\\Agentic_Workflow\\\\results\" mkdir \"C:\\\\AI_Projects\\\\Agentic_Workflow\\\\results\")",
+      "WebSearch",
+      "Bash(ls:*)",
+      "Bash(if not exist \"C:\\\\AI_Projects\\\\Agentic_Workflow\\\\.claude\\\\scripts\" mkdir \"C:\\\\AI_Projects\\\\Agentic_Workflow\\\\.claude\\\\scripts\")",
+      "Bash(mkdir:*)",
+      "Bash(echo.)",
+      "WebFetch(domain:alessandrosecchi.com)"
+    ]
+  }
+}

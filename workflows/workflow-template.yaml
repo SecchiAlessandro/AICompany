@@ -1,0 +1,55 @@
+# Workflow Map Template
+# Copy this file to workflows/ and fill in your specific details
+
+name: "<workflow_name>"
+description: "<brief description of the workflow>"
+
+# Who participates in this workflow
+people_involved:
+  - role: "<role_name>"
+    description: "<what this person/role does>"
+    # Software and systems used
+    tools:
+      - name: "<tool_name>"
+        purpose: "<what it's used for in this workflow (The agent can also use python code for data analysis, install packages, save results as images and use plugins or skills if necessary)>"
+    # Add more sources as needed
+
+    # Where to find relevant information
+    knowledge_sources:
+      - name: "<source_name>"
+        purpose: "<what it's used for in this workflow>"
+        path: "<URL or path or description of how to access>"
+      # Add more sources as needed
+  
+  # Add more roles as needed
+
+# What must be true before starting
+preconditions:
+  - name: "<gate_name>"
+    description: "<what must be verified>"
+    verification: "<how to check this condition>"
+  # Add more preconditions as needed
+
+# High-level summary of the work
+overview: |
+  <Describe the main tasks and goals of this workflow>
+
+# What each role needs and produces
+inputs_outputs:
+  "<role_name>":
+    inputs:
+      - "<item role receives>"
+    outputs:
+      - "<item role produces>"
+  # Add more roles as needed
+
+
+
+# Success measurement
+okr:
+  objectives:
+    - "<high-level goal>"
+  key_results:
+    - "<what to measure and target value>"
+
+ 

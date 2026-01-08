@@ -1,0 +1,38 @@
+{
+  "project": {
+    "name": "Agent Workflow Orchestrator",
+    "description": "Dynamic agent creation and orchestration based on workflow maps"
+  },
+  "agents": {
+    "directory": ".claude/agents",
+    "available": [
+      "orchestrator",
+      "workflow-mapper",
+      "agent-factory"
+    ]
+  },
+  "workflows": {
+    "directory": "workflows",
+    "format": "yaml"
+  },
+  "results": {
+    "file": "results/shared.md"
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "\"C:\\Program Files\\Git\\bin\\bash.exe\" -lc \"/c/AI_Projects/Agentic_Workflow/.claude/statusline.sh\""
+  },
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python .claude/scripts/check_okrs.py",
+            "timeout": 30000
+          }
+        ]
+      }
+    ]
+  }
+}
