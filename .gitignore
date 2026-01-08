@@ -5,7 +5,8 @@ node_modules/
 *_unpacked/
 
 # Results folder (generated outputs)
-results/
+results/*
+!results/shared.md
 
 # OS generated files
 .DS_Store
