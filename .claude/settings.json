@@ -6,9 +6,7 @@
   "agents": {
     "directory": ".claude/agents",
     "available": [
-      "orchestrator",
-      "workflow-mapper",
-      "agent-factory"
+      "orchestrator"
     ]
   },
   "workflows": {
@@ -20,7 +18,7 @@
   },
   "statusLine": {
     "type": "command",
-    "command": "\"C:\\Program Files\\Git\\bin\\bash.exe\" -lc \"/c/AI_Projects/Agentic_Workflow/.claude/statusline.sh\""
+    "command": "\"C:\\Program Files\\Git\\bin\\bash.exe\" -lc \"/c/AI_Projects/AICompany/.claude/statusline.sh\""
   },
   "hooks": {
     "Stop": [

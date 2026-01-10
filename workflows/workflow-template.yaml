@@ -8,11 +8,13 @@ description: "<brief description of the workflow>"
 people_involved:
   - role: "<role_name>"
     description: "<what this person/role does>"
-    # Software and systems used
+    # Software, systems, and skills used
     tools:
       - name: "<tool_name>"
-        purpose: "<what it's used for in this workflow (The agent can also use python code for data analysis, install packages, save results as images and use plugins or skills if necessary)>"
-    # Add more sources as needed
+        purpose: "<what it's used for in this workflow>"
+      # Tools can include: Read, Write, Edit, run_in_terminal, or skills like /docx, /pdf, /xlsx, /pptx
+      # The agent can also use python code for data analysis, install packages, save results as images
+    # Add more tools/skills as needed
 
     # Where to find relevant information
     knowledge_sources:
@@ -20,8 +22,15 @@ people_involved:
         purpose: "<what it's used for in this workflow>"
         path: "<URL or path or description of how to access>"
       # Add more sources as needed
+    
+    # Success measurement for this role
+    okr:
+      objectives:
+        - "<high-level goal for this role>"
+      key_results:
+        - "<what to measure and target value for this role>"
   
-  # Add more roles as needed
+# Add more roles as needed
 
 # What must be true before starting
 preconditions:
@@ -43,13 +52,3 @@ inputs_outputs:
       - "<item role produces>"
   # Add more roles as needed
 
-
-
-# Success measurement
-okr:
-  objectives:
-    - "<high-level goal>"
-  key_results:
-    - "<what to measure and target value>"
-
- 

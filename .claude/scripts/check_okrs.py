@@ -1,4 +1,11 @@
 #!/usr/bin/env python3
+"""
+OKR Validation Script for Stop Hook
+
+Validates that agents write completion status to results/shared.md before stopping.
+- For sub-agents: Blocks until agent marks status as COMPLETED
+- For orchestrator: Blocks until WORKFLOW STATUS: COMPLETED
+"""
 import os
 import sys
 import re
@@ -6,92 +13,163 @@ import yaml
 import json
 from pathlib import Path
 
+
 def get_project_root():
     """Get project root from environment or current path."""
     return os.environ.get('CLAUDE_PROJECT_DIR', Path.cwd())
 
+
 def read_shared_md(project_root):
+    """Read the shared.md coordination file."""
     shared_path = Path(project_root) / 'results' / 'shared.md'
     return shared_path.read_text(encoding='utf-8') if shared_path.exists() else None
 
+
+def extract_agent_statuses(content):
+    """
+    Parse all agent status markers from shared.md.
+    Returns dict: {agent_name: status}
+
+    Looks for: ## AGENT STATUS: <role-name> - COMPLETED|IN PROGRESS
+    """
+    pattern = r'## AGENT STATUS:\s*(\S+)\s*-\s*(COMPLETED|IN PROGRESS)'
+    matches = re.findall(pattern, content, re.IGNORECASE)
+    # Return last status for each agent (in case of updates)
+    statuses = {}
+    for agent, status in matches:
+        statuses[agent.lower()] = status.upper()
+    return statuses
+
+
+def get_current_agent(content):
+    """
+    Find the currently running agent from shared.md.
+    Returns the most recent agent marked as IN PROGRESS.
+    """
+    pattern = r'## AGENT STATUS:\s*(\S+)\s*-\s*IN PROGRESS'
+    matches = re.findall(pattern, content, re.IGNORECASE)
+    return matches[-1].lower() if matches else None
+
+
+def check_workflow_completed(content):
+    """Check if the entire workflow is marked as completed."""
+    completed_markers = [
+        'WORKFLOW STATUS: COMPLETED',
+        'All OKRs ACHIEVED',
+        'Final Status: All objectives achieved'
+    ]
+    for marker in completed_markers:
+        if marker.lower() in content.lower():
+            return True
+    return False
+
+
 def extract_workflow_name(content):
+    """Extract workflow name from shared.md."""
     match = re.search(r'\*\*Workflow\*\*:\s*([^\n]+)', content)
     return match.group(1).strip() if match else None
 
-def check_okr_status(content):
-    completed_markers = ['WORKFLOW STATUS: COMPLETED', 'All OKRs ACHIEVED', 'Final Status: All objectives achieved']
-    for marker in completed_markers:
-        if marker.lower() in content.lower():
-            return True, "All OKRs achieved"
-    
-    if any(m in content for m in ['Status**: In Progress', 'Status**: in_progress']):
-        return False, "Workflow still in progress"
-    if 'Status**: blocked' in content:
-        return False, "Workflow is blocked"
-    if 'Status**: partial' in content:
-        return False, "Workflow partially complete"
-    
-    return False, "OKR status unclear - manual review recommended"
 
 def load_workflow_okrs(project_root, workflow_name):
+    """Load OKRs from workflow YAML file."""
+    if not workflow_name:
+        return None
     yaml_path = Path(project_root) / 'workflows' / f'{workflow_name}.yaml'
     if not yaml_path.exists():
         return None
     try:
         with open(yaml_path, 'r', encoding='utf-8') as f:
             return yaml.safe_load(f).get('okr', {})
-    except:
+    except Exception:
         return None
+
+
+def build_block_response(reason, agent_name=None):
+    """Build the JSON response to block Claude from stopping."""
+    if agent_name:
+        system_msg = f"Agent {agent_name} incomplete - retry required"
+    else:
+        system_msg = "Workflow incomplete - continue execution"
+
+    return {
+        "decision": "block",
+        "reason": reason,
+        "systemMessage": system_msg
+    }
+
 
 def main():
     # Set UTF-8 encoding for stdout on Windows
     if sys.platform == 'win32':
         import io
         sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
-    
+
     project_root = get_project_root()
     content = read_shared_md(project_root)
 
-    if not content:
-        # If there's no shared.md, we assume no active workflow and let Claude stop
+    # No shared.md means no active workflow - allow stop
+    if not content or not content.strip():
         return 0
 
+    # Extract context
+    all_statuses = extract_agent_statuses(content)
+    current_agent = get_current_agent(content)
     workflow_name = extract_workflow_name(content)
-    achieved, status_msg = check_okr_status(content)
 
-    if achieved:
-        # Success: Exit 0 with no JSON allows Claude to stop normally
-        print(f"✅ OKR Check Passed: {status_msg}")
+    # Case 1: Sub-agent context (there's an agent IN PROGRESS)
+    if current_agent:
+        agent_status = all_statuses.get(current_agent)
+
+        if agent_status == 'COMPLETED':
+            # Agent has completed - allow stop
+            print(f"Agent {current_agent} COMPLETED - allowing stop")
+            return 0
+        else:
+            # Agent hasn't completed - block and retry
+            reason = (
+                f"CRITICAL: Agent '{current_agent}' has not marked status as COMPLETED.\n\n"
+                f"Before stopping, you MUST:\n"
+                f"1. Complete your assigned tasks\n"
+                f"2. Write your outputs to results/ folder\n"
+                f"3. Append to results/shared.md:\n"
+                f"   ## AGENT STATUS: {current_agent} - COMPLETED\n"
+                f"   **Key Results**: ACHIEVED\n\n"
+                f"Continue working and update your status when done."
+            )
+            response = build_block_response(reason, current_agent)
+            print(json.dumps(response))
+            return 0
+
+    # Case 2: Orchestrator context (no agent IN PROGRESS, check workflow completion)
+    if check_workflow_completed(content):
+        print("WORKFLOW STATUS: COMPLETED - allowing stop")
         return 0
-    
-    # INCOMPLETE: Build the JSON to block Claude and force a new iteration
-    okrs = load_workflow_okrs(project_root, workflow_name)
-    
-    # Prepare the instruction for the NEXT iteration
-    next_instruction = (
-        f"CRITICAL: Workflow '{workflow_name}' is NOT complete.\n"
-        f"Reason: {status_msg}\n\n"
-        f"Please continue the orchestrator workflow. You must finish these objectives:\n"
-    )
-    
-    if okrs:
-        for obj in okrs.get('objectives', []):
-            next_instruction += f"- Objective: {obj}\n"
-        for kr in okrs.get('key_results', []):
-            next_instruction += f"- Key Result: {kr}\n"
-    
-    next_instruction += f"\nRun: @orchestrator workflows/{workflow_name}.yaml to proceed."
 
-    # Return the structured JSON to Claude Code
-    response = {
-        "decision": "block",
-        "reason": next_instruction,
-        "systemMessage": f"🔄 Iteration required for {workflow_name}"
-    }
-    
-    # Print JSON to stdout and exit 0 (this is the key to advanced hooks)
+    # Workflow not complete - block orchestrator
+    okrs = load_workflow_okrs(project_root, workflow_name)
+
+    reason = (
+        f"CRITICAL: Workflow '{workflow_name or 'unknown'}' is NOT complete.\n\n"
+        f"The workflow must reach COMPLETED status before stopping.\n\n"
+    )
+
+    if okrs:
+        reason += "Outstanding objectives:\n"
+        for obj in okrs.get('objectives', []):
+            reason += f"- {obj}\n"
+        reason += "\nKey results to achieve:\n"
+        for kr in okrs.get('key_results', []):
+            reason += f"- {kr}\n"
+
+    reason += (
+        f"\nContinue orchestrating agents until all OKRs are achieved.\n"
+        f"Then write: ## WORKFLOW STATUS: COMPLETED"
+    )
+
+    response = build_block_response(reason)
     print(json.dumps(response))
     return 0
+
 
 if __name__ == '__main__':
     sys.exit(main())

@@ -28,7 +28,8 @@
       "Bash(if not exist \"C:\\\\AI_Projects\\\\Agentic_Workflow\\\\.claude\\\\scripts\" mkdir \"C:\\\\AI_Projects\\\\Agentic_Workflow\\\\.claude\\\\scripts\")",
       "Bash(mkdir:*)",
       "Bash(echo.)",
-      "WebFetch(domain:alessandrosecchi.com)"
+      "WebFetch(domain:alessandrosecchi.com)",
+      "Skill(workflow-mapper)"
     ]
   }
 }
