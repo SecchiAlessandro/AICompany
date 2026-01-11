@@ -21,13 +21,26 @@
     "command": "\"C:\\Program Files\\Git\\bin\\bash.exe\" -lc \"/c/AI_Projects/AICompany/.claude/statusline.sh\""
   },
   "hooks": {
-    "Stop": [
+        "Stop": [
       {
+        "matcher": "",
         "hooks": [
           {
-            "type": "command",
-            "command": "python .claude/scripts/check_okrs.py",
-            "timeout": 30000
+            "type": "prompt",
+            "prompt": "You are the main orchestrator evaluating whether you should be allowed to stop working.\n\nContext: $ARGUMENTS\n\nReview the active workflow's OKRs from its YAML configuration and verify ALL objectives and key results are achieved:\n\n1. Have ALL workflow objectives been fully accomplished?\n2. Have ALL key results specified in the workflow_okr section been met?\n3. Have ALL key results for each role in the people_involved section been verified?\n4. Are ALL expected outputs defined in inputs_outputs present and complete?\n5. Have ALL preconditions been satisfied and maintained throughout execution?\n6. Did ALL delegated subagent tasks complete successfully with verified deliverables?\n7. Are ALL quality standards and formatting requirements met?\n\nIf ANY objective, key result, or deliverable is incomplete or unverified, you MUST block yourself from stopping.\n\nReturn {\"decision\": \"approve\"} ONLY if ALL workflow OKRs are 100% complete and verified.\nReturn {\"decision\": \"block\", \"reason\": \"Specific details: which objectives are incomplete, which key results are unmet, what deliverables are missing, or which verification steps failed\"} if work remains.",
+            "timeout": 60000
+          }
+        ]
+      }
+    ],
+    "SubagentStop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "prompt",
+            "prompt": "You are evaluating whether a subagent should be allowed to stop working.\n\nContext: $ARGUMENTS\n\nAnalyze the subagent's work and determine if:\n1. All assigned OKRs (Objectives and Key Results) have been achieved\n2. The deliverables match the expected outcomes\n3. No critical tasks remain incomplete\n4. Quality standards have been met\n\nIf ANY OKR is not fully achieved, you MUST block the subagent from stopping.\n\nReturn {\"decision\": \"approve\"} only if ALL OKRs are complete.\nReturn {\"decision\": \"block\", \"reason\": \"Specific explanation of which OKRs are incomplete and what needs to be done\"} if work remains.",
+            "timeout": 60000
           }
         ]
       }
