@@ -1,0 +1,49 @@
+{
+  "project": {
+    "name": "Agent Workflow Orchestrator",
+    "description": "Dynamic agent creation and orchestration based on workflow maps"
+  },
+  "agents": {
+    "directory": ".claude/agents",
+    "available": [
+      "orchestrator"
+    ]
+  },
+  "workflows": {
+    "directory": "workflows",
+    "format": "yaml"
+  },
+  "results": {
+    "file": "results/shared.md"
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "\"C:\\Program Files\\Git\\bin\\bash.exe\" -lc \"/c/AI_Projects/AICompany/.claude/statusline.sh\""
+  },
+  "hooks": {
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "prompt",
+            "prompt": "Check results/shared.md for workflow completion.\n\nApprove ONLY if WORKFLOW STATUS: COMPLETED exists OR shared.md is empty (no active workflow).\n\nReturn {\"decision\": \"approve\"} or {\"decision\": \"block\", \"reason\": \"incomplete OKRs: <specifics>\"}",
+            "timeout": 60000
+          }
+        ]
+      }
+    ],
+    "SubagentStop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "prompt",
+            "prompt": "Check results/shared.md for your agent completion status.\n\nApprove ONLY if your AGENT STATUS shows COMPLETED.\n\nReturn {\"decision\": \"approve\"} or {\"decision\": \"block\", \"reason\": \"incomplete: <what remains>\"}",
+            "timeout": 60000
+          }
+        ]
+      }
+    ]
+  }
+}
