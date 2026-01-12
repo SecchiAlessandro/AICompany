@@ -84,17 +84,18 @@ def load_workflow_okrs(project_root, workflow_name):
         return None
 
 
-def build_block_response(reason, agent_name=None):
+def build_block_response(reason):
     """Build the JSON response to block Claude from stopping."""
-    if agent_name:
-        system_msg = f"Agent {agent_name} incomplete - retry required"
-    else:
-        system_msg = "Workflow incomplete - continue execution"
-
     return {
-        "decision": "block",
-        "reason": reason,
-        "systemMessage": system_msg
+        "ok": False,
+        "reason": reason
+    }
+
+
+def build_approve_response():
+    """Build the JSON response to allow Claude to stop."""
+    return {
+        "ok": True
     }
 
 
@@ -109,6 +110,8 @@ def main():
 
     # No shared.md means no active workflow - allow stop
     if not content or not content.strip():
+        result = build_approve_response()
+        print(json.dumps(result))
         return 0
 
     # Extract context
@@ -122,7 +125,8 @@ def main():
 
         if agent_status == 'COMPLETED':
             # Agent has completed - allow stop
-            print(f"Agent {current_agent} COMPLETED - allowing stop")
+            result = build_approve_response()
+            print(json.dumps(result))
             return 0
         else:
             # Agent hasn't completed - block and retry
@@ -136,13 +140,14 @@ def main():
                 f"   **Key Results**: ACHIEVED\n\n"
                 f"Continue working and update your status when done."
             )
-            response = build_block_response(reason, current_agent)
+            response = build_block_response(reason)
             print(json.dumps(response))
             return 0
 
     # Case 2: Orchestrator context (no agent IN PROGRESS, check workflow completion)
     if check_workflow_completed(content):
-        print("WORKFLOW STATUS: COMPLETED - allowing stop")
+        result = build_approve_response()
+        print(json.dumps(result))
         return 0
 
     # Workflow not complete - block orchestrator
