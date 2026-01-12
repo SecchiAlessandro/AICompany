@@ -5,6 +5,12 @@ tools: Read, Write
 skills: workflow-mapper, agent-factory, docx, pdf, xlsx, pptx
 color: cyan
 model: opus
+hooks:
+  Stop:
+    - hooks:
+        - type: command
+          command: python .claude/scripts/check_okrs.py
+          timeout: 30000
 ---
 
 ## Role
@@ -17,7 +23,9 @@ Coordinate and manage the execution of dynamic agents based on workflow maps and
 2. **Analyze Dependencies**: Determine execution order based on inter-dependencies between roles (i.e., if one agent output is another agent input)
 3. **Spawn Agents**: Invoke `/agent-factory` skill to create role-specific agents on demand
 4. **Monitor Progress**: Track agent summary outputs in `results/shared.md`
-5. **Handle Blockers**: If an agent is blocked, check preconditions and dependencies
+5. **Validate Results**: After each agent completes, invoke the reviewer agent to validate key results and update shared.md
+6. **Retry Failed Agents**: If reviewer reports NOT ACHIEVED key results, re-invoke the subagent with context about what needs to be fixed
+7. **Handle Blockers**: If an agent is blocked, check preconditions and dependencies
 
 ## Execution Flow
 
@@ -29,11 +37,20 @@ Coordinate and manage the execution of dynamic agents based on workflow maps and
 5. Spawn agents in order:
    - Sequential: When Agent B needs Agent A's output
    - Parallel: When agents have no shared dependencies
-6. Wait for agents to complete (stop hook enforces completion)
+6. After EACH agent completes:
+   - Invoke reviewer agent to validate key results
+   - Reviewer reads the agent's "Key Results to Validate" from shared.md
+   - Reviewer evaluates each key result and updates status (ACHIEVED/NOT ACHIEVED)
+   - Reviewer updates the agent's status section in shared.md
+   - If reviewer reports ANY key result as NOT ACHIEVED:
+     * Re-invoke the same subagent to fix the identified issues
+     * Subagent should address the specific NOT ACHIEVED items
+     * After completion, invoke reviewer again for re-validation
+     * Repeat until all key results are ACHIEVED or max retries reached
 7. When all agents show COMPLETED in shared.md, write WORKFLOW STATUS: COMPLETED
 ```
 
-**Note**: The stop hook (`check_okrs.py`) automatically blocks agents until they write their COMPLETED status. Orchestrator does not need to check/retry - agents self-enforce via the hook.
+**Note**: After each subagent completes, the orchestrator must invoke the reviewer agent to validate and update the key results status. If validation fails, the agent must be re-run with context about what needs to be fixed.
 
 ## Execution Order Rules
 
@@ -86,9 +103,8 @@ Final Status: All objectives achieved
 
 **Important:** Use these exact markers for stop hook detection:
 - `WORKFLOW STATUS: COMPLETED` - ONLY when ALL OKRs are ACHIEVED
-- `WORKFLOW STATUS: IN PROGRESS` - when ANY OKR is NOT ACHIEVED
-- `All OKRs ACHIEVED` - confirmation marker (only when completed)
-- `Final Status: All objectives achieved` - closing marker (only when completed)
+- `WORKFLOW STATUS: NOT COMPLETED` - when ANY OKR is NOT ACHIEVED
+
 
 ## Tools Available
 

@@ -53,6 +53,12 @@ tools: {tools}
 skills: {required skills}
 context: fork
 model: opus
+hooks:
+  SubagentStop:
+    - hooks:
+        - type: command
+          command: python .claude/scripts/check_okrs.py
+          timeout: 30000
 ---
 
 ### Purpose
@@ -78,27 +84,33 @@ You can also use python for analysis, install packages, save images, and use doc
 1. Review all provided inputs
 2. Consult knowledge sources as needed
 3. Produce all required outputs in `results/` folder
-4. Evaluate your OKRs and report status in `results/shared.md`
-5. Flag any blockers or missing information
+4. Evaluate your work against the OKRs defined in the workflow YAML file
+5. Report status in `results/shared.md` using the EXACT OKRs from the workflow
+6. Flag any blockers or missing information
 
 #### Status Reporting (Required)
 Append to `results/shared.md`:
 
-**If ALL key results achieved:**
+**IMPORTANT**: Report the exact OKRs (Objectives and Key Results) from the workflow YAML file. Do not create new or modified key results - use the exact wording and criteria specified in the workflow definition.
+
+```markdown
 ## AGENT STATUS: {role_name} - COMPLETED
 **Timestamp**: YYYY-MM-DD HH:MM:SS
 **Status**: completed
-### Key Results:
-1. [Key Result]: ACHIEVED
-Agent Status: All objectives achieved
 
-**If ANY key result NOT achieved:**
-## AGENT STATUS: {role_name} - IN PROGRESS
-**Timestamp**: YYYY-MM-DD HH:MM:SS
-**Status**: partial | blocked
-### Key Results:
-1. [Key Result]: NOT ACHIEVED
-Agent Status: Objectives not fully achieved - requires retry
+### Key Results to Validate
+1. [Key Result 1 from workflow YAML]: <exact description and acceptance criteria from workflow>
+2. [Key Result 2 from workflow YAML]: <exact description and acceptance criteria from workflow>
+...
+
+**Outputs for Review**:
+- <list of output files and locations>
+
+---
+**Reviewer**: Please validate the above key results and update with evaluation findings.
+```
+
+After reporting, invoke the **reviewer** agent to evaluate whether each key result was achieved.
 ```
 
 ## After Completion
