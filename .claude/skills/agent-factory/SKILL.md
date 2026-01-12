@@ -52,7 +52,7 @@ description: {role_description}
 tools: {tools}
 skills: {required skills}
 context: fork
-model: sonnet
+model: opus
 ---
 
 ### Purpose

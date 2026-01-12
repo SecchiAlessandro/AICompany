@@ -26,9 +26,9 @@
         "matcher": "",
         "hooks": [
           {
-            "type": "command",
-            "command": "python .claude/scripts/check_okrs.py",
-            "timeout": 30000
+            "type": "prompt",
+            "prompt": "Check results/shared.md for workflow completion.\n\nApprove ONLY if WORKFLOW STATUS: COMPLETED exists OR shared.md is empty (no active workflow).\n\nReturn {\"decision\": \"approve\"} or {\"decision\": \"block\", \"reason\": \"incomplete OKRs: <specifics>\"}",
+            "timeout": 60000
           }
         ]
       }
@@ -38,13 +38,12 @@
         "matcher": "",
         "hooks": [
           {
-            "type": "command",
-            "command": "python .claude/scripts/check_okrs.py",
-            "timeout": 30000
+            "type": "prompt",
+            "prompt": "Check results/shared.md for your agent completion status.\n\nApprove ONLY if your AGENT STATUS shows COMPLETED.\n\nReturn {\"decision\": \"approve\"} or {\"decision\": \"block\", \"reason\": \"incomplete: <what remains>\"}",
+            "timeout": 60000
           }
         ]
       }
     ]
   }
 }
-

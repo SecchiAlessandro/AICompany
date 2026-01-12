@@ -17,11 +17,11 @@ people_involved:
         purpose: "Execute file operations (e.g., unpack docx for XML analysis)"
     knowledge_sources:
       - name: "EZ_Template.docx"
-        purpose: "Target template defining structure, fonts, colors, and layout (styling read dynamically at runtime)"
+        purpose: "Target template - copied as base for each conversion (preserves all formatting)"                                            
         path: "templates/EZ_Template.docx"
-      - name: "EZ_Template_unpacked"
-        purpose: "Unpacked template files for structure analysis (reuse if available, otherwise create on-demand)"
-        path: "templates/EZ_Template_unpacked/ (if exists) or created in scratchpad"
+      - name: "Template_Specification.md"
+        purpose: "Template specification reference for verification of formatting, fonts, colors, and structure"
+        path: "domain knowledge/Template_Specification.md"
       - name: "Source CVs"
         purpose: "All source CV documents to be converted (auto-discovered)"
         path: "templates/*.doc, *.docx, *.pdf (excluding EZ_Template.docx)"
@@ -29,13 +29,21 @@ people_involved:
       objectives:
         - "Convert all source CVs to match EZ_Template format exactly"
       key_results:
-        - "Output CV section structure matches EZ_Template (as read from template)"
-        - "Output CV layout (dates, titles alignment, bullet points) matches EZ_Template (as read from template)"
-        - "Output CV uses same fonts as template (read dynamically)"
-        - "Output CV uses same colors as template (read dynamically)"
-        - "Candidate photo included if present in source"
-        - "Company logo from template included as from template"
-        - "Technical expertise keywords bolded throughout"
+        - "Output CV has updated content based on candidate CV"
+        - "Candidate name is orange (#ED7D31) with small caps"
+        - "Candidate photo is circular and positioned top-right (if present in source)"
+        - "Company logo appears in header on all pages"
+        - "All section headers have bottom border underline"
+        - "Experience dates use 'MMM YYYY' format"
+        - "Technical keywords are bolded in bullet points"
+        - "Bullet points use Symbol font, not Unicode characters"
+        - "Font is Arial Narrow throughout"
+        - "Body text is 10pt, name is 28pt"
+        - "Page margins are 0.75 inch left/right, 1 inch top/bottom"
+        - "Text is justified (both alignment)"
+        - "Tab stops align dates, companies, and job titles correctly"
+        - "Education uses 'YYYY – YYYY' format with en-dash"
+        - "Multi-column layout for Technical Skills section"
 
 preconditions:
   - name: "source_cvs_exist"
@@ -47,28 +55,6 @@ preconditions:
   - name: "docx_skill_available"
     description: "The /docx skill must be available for document processing"
     verification: "Verify /docx skill can be invoked"
-
-overview: |
-  This workflow converts ALL candidate CVs in the templates folder to the standardized EZ_Template format.
-
-  IMPORTANT: Template styling is NOT hardcoded. The agent dynamically reads fonts, colors,
-  sections, and formatting from EZ_Template.docx at runtime. If the template changes,
-  the conversion will automatically adapt.
-
-  The conversion process:
-  1. Analyze EZ_Template.docx to extract current styling (fonts, colors, sections, formatting)
-     - Reuse templates/EZ_Template_unpacked/ if available, otherwise unpack to scratchpad
-  2. Discover all .doc, .docx, and .pdf files in templates/ (excluding EZ_Template.docx)
-  3. For each source CV:
-     a. Read and extract all content (personal info, experience, education, skills, photo)
-     b. Identify the candidate's primary technical expertise
-     c. Create new document following EZ_Template structure (as read from template)
-     d. Apply template styling (as read from template - NOT hardcoded)
-     e. Include company logo from template (if present)
-     f. Include candidate photo if available
-     g. Bold technical expertise keywords throughout
-     h. Save to results/<candidate_name>_EZ.docx
-  4. Report batch completion with per-CV status
 
 inputs_outputs:
   "cv-converter":
@@ -84,254 +70,10 @@ workflow_okr:
     - "Successfully convert ALL source CVs in templates folder to EZ_Template format"
   key_results:
     - "All .doc/.docx/.pdf files in templates folder (excluding EZ_Template) are discovered and processed"
-    - "Each output CV section structure matches EZ_Template (as read from template)"
-    - "Each output CV layout (dates, titles alignment, bullet points) matches EZ_Template (as read from template)"
-    - "Each output CV uses same fonts and colors as template (read dynamically)"
-    - "Candidate photo included in output if present in source CV"
-    - "Company logo from template included in each output CV"
-    - "Technical expertise keywords bolded throughout each output CV"
+    - "Each output CV has updated content based on candidate cv"
     - "Each converted CV saved as results/<candidate_name>_EZ.docx"
-    - "Batch summary logged to results/shared.md with count: Y of Y CVs converted successfully"
+    - "Batch summary logged to results/shared.md with count: X of Y CVs converted successfully"
 
-# ==========================================
-# TEMPLATE SPECIFICATION
-# ==========================================
-template_specification:
-  # ==========================================
-  # 1. PAGE SETUP & DOCUMENT STRUCTURE
-  # ==========================================
-  page_setup:
-    - "Page size: A4 (11906 x 16838 DXA / 210mm x 297mm)"
-    - "Page margins: Top 1440 DXA (1 inch), Bottom 1440 DXA, Left 1080 DXA (0.75 inch), Right 1080 DXA"
-    - "Header margin: 708 DXA from edge"
-    - "Footer margin: 708 DXA from edge"
-    - "Gutter: 0"
-    - "Document grid line pitch: 360"
-    - "Default line spacing: 259 (auto rule)"
 
-  # ==========================================
-  # 2. FONTS
-  # ==========================================
-  typography:
-    primary_font:
-      - "Body text font: Arial Narrow (w:ascii and w:hAnsi)"
-      - "Complex script fallback: Arial (w:cs)"
-      - "Default document font: Calibri (theme minorHAnsi)"
-      - "Major heading theme font: Calibri Light (theme majorHAnsi)"
-    
-    font_sizes:
-      - "Candidate name: 28pt (w:sz='56' = 28 half-points x 2)"
-      - "Section headers (Highlights, Experience, Education, etc.): 11pt (default, w:sz='22')"
-      - "Body text / bullet points: 10pt (w:sz='20')"
-      - "Date ranges: 10pt bold (w:sz='20' with w:b)"
-      - "Company names: 10pt bold"
-      - "Job titles: 10pt regular"
 
-  # ==========================================
-  # 3. COLOR SCHEME
-  # ==========================================
-  colors:
-    text_colors:
-      - "Candidate name: Orange/Accent2 (#ED7D31, w:themeColor='accent2')"
-      - "Section headers: Black (default)"
-      - "Body text: Black (default)"
-      - "Hyperlinks: Blue (#0563C1, w:themeColor='hyperlink')"
-      - "Followed hyperlinks: Purple (#954F72)"
-    
-    theme_palette:
-      - "Dark 1 (dk1): #000000 (black text)"
-      - "Light 1 (lt1): #FFFFFF (white background)"
-      - "Dark 2 (dk2): #44546A (dark blue-gray)"
-      - "Light 2 (lt2): #E7E6E6 (light gray)"
-      - "Accent 1: #4472C4 (blue)"
-      - "Accent 2: #ED7D31 (orange - used for name)"
-      - "Accent 3: #A5A5A5 (gray)"
-      - "Accent 4: #FFC000 (gold)"
-      - "Accent 5: #5B9BD5 (light blue)"
-      - "Accent 6: #70AD47 (green)"
 
-  # ==========================================
-  # 4. SECTION STRUCTURE & ORDER
-  # ==========================================
-  section_structure:
-    header_section:
-      - "Candidate name at top left (smallCaps formatting)"
-      - "Candidate photo: circular crop (ellipse preset geometry), positioned top-right"
-      - "Photo dimensions: 1463040 EMU x 1463040 EMU (~1.15 inch diameter)"
-      - "Photo position: Right-aligned, anchored to first paragraph"
-      - "Horizontal line (bottom border) under name section"
-    
-    personal_info_section:
-      - "Nationality field: Bold label, regular value"
-      - "Availability field: Bold label, regular value"
-      - "Languages field: Bold label, regular value with proficiency levels (e.g., 'C2', 'B1', 'Native')"
-      - "Location field: Bold label, regular value"
-      - "Blank line separator after personal info"
-    
-    main_sections_order:
-      - "1. Header (Name + Photo)"
-      - "2. Personal Information (Nationality, Availability, Languages, Location)"
-      - "3. Highlights (bulleted list)"
-      - "4. Experience (chronological entries)"
-      - "5. Education"
-      - "6. Technical Skills (multi-column layout)"
-      - "7. Interests/Hobbies (if present)"
-    
-    section_header_formatting:
-      - "Section titles: Bold, Arial Narrow, 11pt"
-      - "Bottom border: Single line, size 4, space 1, auto color"
-      - "Multiple tabs after title to extend underline across page"
-      - "Text alignment: both (justified)"
-
-  # ==========================================
-  # 5. EXPERIENCE ENTRIES FORMAT
-  # ==========================================
-  experience_format:
-    date_company_line:
-      - "Format: 'MMM YYYY – MMM YYYY[TAB][TAB]Company Name, Location'"
-      - "Date format examples: 'May 2022', 'Sep 2024', 'Oct 2015'"
-      - "All elements: Bold, Arial Narrow, 10pt"
-      - "Tab stops used for alignment (not spaces)"
-    
-    job_title_line:
-      - "Format: '[TAB][TAB][TAB][TAB][TAB]Job Title'"
-      - "Multiple tabs to align with company name above"
-      - "Regular weight, Arial Narrow, 10pt"
-    
-    responsibilities:
-      - "Bullet point style: Symbol font bullet (not Unicode)"
-      - "List style: ListParagraph with numId reference"
-      - "Indentation: left 720 DXA, hanging 360 DXA"
-      - "Font: Arial Narrow, 10pt"
-      - "Technical keywords: BOLD (w:b and w:bCs tags)"
-      - "Text alignment: justified (both)"
-
-  # ==========================================
-  # 6. EDUCATION ENTRIES FORMAT
-  # ==========================================
-  education_format:
-    - "Format: 'YYYY – YYYY[TAB][TAB]Degree Title – Institution Name'"
-    - "All on one line, Bold, Arial Narrow, 10pt"
-    - "Optional second line with specialization (indented with tabs)"
-    - "Specialization line: Regular weight, Arial Narrow, 10pt"
-
-  # ==========================================
-  # 7. TECHNICAL SKILLS FORMAT
-  # ==========================================
-  technical_skills_format:
-    - "Section uses multi-column layout (continuous section break)"
-    - "Skills listed one per line"
-    - "Font: Arial Narrow, 10pt"
-    - "Text alignment: justified"
-
-  # ==========================================
-  # 8. BULLET POINTS & LISTS
-  # ==========================================
-  bullet_formatting:
-    - "Bullet character: Symbol font bullet (w:lvlText empty with Symbol font)"
-    - "Level 0 indentation: left 720 DXA, hanging 360 DXA"
-    - "Bullet numbering format: bullet (w:numFmt='bullet')"
-    - "List paragraph style: 'ListParagraph' (w:pStyle)"
-    - "Multi-level support: Up to 9 levels defined"
-    - "Second level bullet: 'o' character (Courier New)"
-
-  # ==========================================
-  # 9. IMAGES & MEDIA
-  # ==========================================
-  images:
-    candidate_photo:
-      - "Shape: Ellipse/Circle crop (a:prstGeom prst='ellipse')"
-      - "Size: 1463040 x 1463040 EMU (approximately 115px or 1.15 inch)"
-      - "Position: Anchored, floating (wp:anchor)"
-      - "Horizontal offset: 4852614 EMU from column"
-      - "Vertical offset: 102235 EMU from paragraph"
-      - "Text wrapping: None (wp:wrapNone)"
-      - "Line style: 63500 width, round cap, no fill"
-    
-    company_logo:
-      - "Location: Header (header2.xml)"
-      - "Position: Right-aligned to margin"
-      - "Size: 476250 x 666750 EMU (~37.5pt x 52.5pt)"
-      - "Vertical offset: -203835 EMU (above paragraph)"
-      - "Text wrapping: Top and bottom (wp:wrapTopAndBottom)"
-      - "Shape: Rectangle (rect)"
-
-  # ==========================================
-  # 10. SPECIAL TEXT FORMATTING
-  # ==========================================
-  text_emphasis:
-    - "Technical keywords in bullets: BOLD"
-    - "Candidate name: Small caps (w:smallCaps) + Orange color"
-    - "Section headers: Bold only"
-    - "Field labels (Nationality, Languages, etc.): Bold"
-    - "Dates: Bold"
-    - "Company names: Bold"
-    - "Job titles: Regular (not bold)"
-
-  # ==========================================
-  # 11. HEADER & FOOTER
-  # ==========================================
-  header_footer:
-    header:
-      - "Contains company logo (right-aligned)"
-      - "Uses 'Header' paragraph style"
-      - "Tab stops: center at 4513, right at 9026"
-      - "Line spacing: 240 (single)"
-    
-    footer:
-      - "Uses 'Footer' paragraph style"
-      - "Tab stops: center at 4513, right at 9026"
-      - "Line spacing: 240 (single)"
-
-  # ==========================================
-  # 12. PARAGRAPH FORMATTING
-  # ==========================================
-  paragraph_formatting:
-    - "Default paragraph alignment: Both/Justified (w:jc val='both')"
-    - "List paragraphs: Contextual spacing enabled"
-    - "Standard paragraph indentation: None (0)"
-    - "Section header paragraphs: Bottom border with tabs"
-
-  # ==========================================
-  # 13. LANGUAGE & LOCALE
-  # ==========================================
-  locale_settings:
-    - "Primary language: en-GB (w:val='en-GB')"
-    - "East Asian language: en-US"
-    - "Bidirectional language: ar-SA"
-    - "Content may use en-CH locale in some sections"
-
-  # ==========================================
-  # 14. TABLE STYLES (if applicable)
-  # ==========================================
-  table_styles:
-    - "Table Grid style available with single borders"
-    - "Border: single, size 4, auto color"
-    - "Default cell margins: top 0, left 108, bottom 0, right 108 DXA"
-
-  # ==========================================
-  # 15. PAGE BREAKS & SECTIONS
-  # ==========================================
-  page_structure:
-    - "Page breaks within list items (w:br type='page')"
-    - "Continuous section breaks for multi-column layouts"
-    - "Section properties define header/footer references per section"
-
-  # ==========================================
-  # VALIDATION CHECKLIST
-  # ==========================================
-  validation_checklist:
-    - "[ ] Candidate name is orange (#ED7D31) with small caps"
-    - "[ ] Candidate photo is circular and positioned top-right"
-    - "[ ] Company logo appears in header on all pages"
-    - "[ ] All section headers have bottom border underline"
-    - "[ ] Experience dates use 'MMM YYYY' format"
-    - "[ ] Technical keywords are bolded in bullet points"
-    - "[ ] Bullet points use Symbol font, not Unicode characters"
-    - "[ ] Font is Arial Narrow throughout"
-    - "[ ] Body text is 10pt, name is 28pt"
-    - "[ ] Page margins are 0.75 inch left/right, 1 inch top/bottom"
-    - "[ ] Text is justified (both alignment)"
-    - "[ ] Tab stops align dates, companies, and job titles correctly"
-    - "[ ] Education uses 'YYYY – YYYY' format with en-dash"
-    - "[ ] Multi-column layout for Technical Skills section"
