@@ -65,14 +65,7 @@ inputs_outputs:
       - "results/<candidate_name>_EZ.docx - Converted CV for each source (one per input)"
       - "results/shared.md - Batch status with per-CV completion summary"
 
-workflow_okr:
-  objectives:
-    - "Successfully convert ALL source CVs in templates folder to EZ_Template format"
-  key_results:
-    - "All .doc/.docx/.pdf files in templates folder (excluding EZ_Template) are discovered and processed"
-    - "Each output CV has updated content based on candidate cv"
-    - "Each converted CV saved as results/<candidate_name>_EZ.docx"
-    - "Batch summary logged to results/shared.md with count: X of Y CVs converted successfully"
+
 
 
 
