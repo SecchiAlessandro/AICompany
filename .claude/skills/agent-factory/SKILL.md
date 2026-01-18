@@ -1,9 +1,10 @@
 ---
 name: agent-factory
 description: Generates specialized role-specific agent markdown files from workflow role definitions. Use when a workflow has been defined and individual role agents need to be created in .claude/agents/ directory.
-tools: Read, Write
+tools: Read, Write, WebSearch
 skills: docx, pdf, xlsx, pptx
 context: fork
+permissionMode: acceptEdits  # or bypassPermissions for full autonomy
 ---
 
 # Agent Factory
@@ -12,36 +13,10 @@ Generate role-specific agents from workflow YAML and save to `.claude/agents/`.
 
 ## Process
 
-1. Parse role definition from workflow YAML
+1. Parse role definition from workflow YAML in `/workflows` folder
 2. Build agent using template below with placeholder mapping
 3. Validate against checklist
 4. Save to `.claude/agents/<role-name>.md`
-
-## Placeholder Mapping
-
-| Placeholder | Source in Workflow YAML |
-|-------------|------------------------|
-| `{role_name}` | `people_involved[n].role` (lowercase, hyphenated) |
-| `{role_description}` | `people_involved[n].description` |
-| `{inputs}` | `inputs_outputs.<role>.inputs` (bulleted list) |
-| `{outputs}` | `inputs_outputs.<role>.outputs` (bulleted list) |
-| `{knowledge_sources}` | `people_involved[n].knowledge_sources` (path + purpose) |
-| `{tools}` | `people_involved[n].tools` (name + purpose) |
-
-**Example**: From `role: Control Lead` with `description: Responsible for control system design` becomes `name: control-lead` and `description: Responsible for control system design`.
-
-## Validation Checklist
-
-- [ ] Frontmatter has `name`, `description`, `tools`, `model`
-- [ ] Purpose section describes the agent's role
-- [ ] All inputs listed with valid sources
-- [ ] All outputs specific with location in `results/`
-- [ ] Knowledge source paths are valid
-- [ ] Tools match workflow requirements
-- [ ] Document skills included if file operations needed
-- [ ] Instructions include logging to `results/shared.md`
-- [ ] Instructions include OKR evaluation and status reporting
-- [ ] Agent can execute independently with given inputs
 
 ## Agent Template
 
@@ -74,34 +49,57 @@ You can also use python for analysis, install packages, save images, and use doc
 #### Required Skills
 {skills}
 
+#### Your Objectives
+{exact okr_objectives from yaml file}
+
+#### Your Key Results
+{exact okr_key_results from yaml file}
+
 #### Instructions
-1. Review all provided inputs
-2. Consult knowledge sources as needed
-3. Produce all required outputs in `results/` folder
-4. Evaluate your OKRs and report status in `results/shared.md`
-5. Flag any blockers or missing information
+1. Review your Objectives and Key Results listed above
+2. Review your Inputs and desired Outputs
+3. Create your own execution plan to achieve your objectives:
+   - Analyze what needs to be done
+   - use WebSearch tool for best practices if needed
+   - Break down into actionable steps
+   - Consider dependencies on other agents' outputs
+4. Consult knowledge sources as needed
+5. Execute your plan and produce all required outputs in `results/` folder
+6. Continuously evaluate your work against YOUR KEY RESULTS
+7. Update your OKR status in `results/shared.md` (your section is already created by orchestrator)
+
 
 #### Status Reporting (Required)
-Append to `results/shared.md`:
 
-**If ALL key results achieved:**
+The orchestrator has already created your status section in `results/shared.md` with PENDING status.
+Your job is to UPDATE your agent status section, changing PENDING to ACHIEVED or NOT ACHIEVED for each key result.
+
+Find your section:
+```markdown
+## AGENT STATUS: {role_name} - PENDING
+```
+
+Update it to:
+```markdown
 ## AGENT STATUS: {role_name} - COMPLETED
 **Timestamp**: YYYY-MM-DD HH:MM:SS
-**Status**: completed
-### Key Results:
-1. [Key Result]: ACHIEVED
-Agent Status: All objectives achieved
 
-**If ANY key result NOT achieved:**
-## AGENT STATUS: {role_name} - IN PROGRESS
-**Timestamp**: YYYY-MM-DD HH:MM:SS
-**Status**: partial | blocked
 ### Key Results:
-1. [Key Result]: NOT ACHIEVED
-Agent Status: Objectives not fully achieved - requires retry
+1. [Your Key Result 1]: ACHIEVED or NOT ACHIEVED 
+2. [Your Key Result 2]: ACHIEVED or NOT ACHIEVED 
+...
+
+**Outputs**:
+- <list of output files and locations>
+```
+
+**IMPORTANT**:
+- Use the EXACT key results from "Your Key Results" section above. Do not modify the wording.
+- You have autonomy to determine HOW to achieve your objectives - create your own execution plan.
 ```
 
 ## After Completion
 
 1. Save agent to `.claude/agents/<role-name>.md`
-2. Append summary to `results/shared.md` with timestamp and status
+2. Verify agent has embedded OKRs (objectives and key_results from workflow)
+

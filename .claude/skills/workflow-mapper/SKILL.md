@@ -1,9 +1,9 @@
 ---
 name: workflow-mapper
 description: Transforms user goals and requirements into structured workflow YAML definitions. Use when creating new workflows, reverse-engineering processes from descriptions, or when no workflow exists in workflows/ folder and one needs to be generated.
-tools: Read, Write
+tools: Read, Write, AskUserQuestion
 skills: docx, pdf, xlsx, pptx
-context: fork
+
 ---
 
 # Workflow Mapper
@@ -28,15 +28,16 @@ Transform user descriptions into structured workflow YAML following `workflows/w
 
 ## Question Framework
 
-### Essential Questions (Always Ask)
+Use the **AskUserQuestion tool** to gather workflow details interactively.
+
+### Essential Questions (Always Ask via AskUserQuestion)
 
 1. **Workflow goal/description**: What is the main goal or purpose of this workflow?
 2. **Key results**: What measurable outcomes define success? What must be achieved?
-3. **Workflow name**: Suggest kebab-case name based on goal (e.g., `design-validation-phase`)
 
 ### Optional Questions (Only if User Wants to Specify)
 
-4. **Specific roles**: Do you have specific roles/agents that must be involved?
+3. **Specific roles**: Do you have specific roles/agents that must be involved?
    - If YES: For each role, ask:
      - Role name and description
      - Role-specific OKRs (objectives and key results)
@@ -44,40 +45,27 @@ Transform user descriptions into structured workflow YAML following `workflows/w
      - Knowledge sources (name, purpose, path)
    - If NO: Skill will derive required roles automatically based on goal and key results
 
-### Auto-Derivation Mode
+## OKR Validation Criteria (CRITICAL)
 
-When user doesn't specify roles, the skill will:
-1. Analyze goal and key results
-2. Identify required roles/agents needed to achieve results
-3. Derive for each role:
-   - Role-specific OKRs aligned with workflow key results
-   - Required tools and skills
-   - Knowledge sources needed
-   - Preconditions for that role
-   - Input/output relationships
-4. Present derived workflow to user for confirmation
+All key results MUST meet these validation criteria:
+
+**Good Key Result:**
+- ✓ **Measurable**: Has quantifiable outcome (numbers, percentages, completion state)
+- ✓ **Specific**: Clear completion criteria that can be validated
+- ✓ **Achievable**: Within agent capabilities and available tools
+- ✓ **Relevant**: Directly supports the objective
+
+
+**Why This Matters**: The stop hook system validates OKRs to determine when agents can complete. Vague or unmeasurable key results will prevent proper validation and block workflow completion.
+
+## Using AskUserQuestion Tool
+
+Always use `AskUserQuestion` to gather workflow details. This ensures structured, consistent responses.
 
 ### Tips
 - Use existing workflows in `workflows/` as reference patterns
 - Check `templates/` folder for input/output templates
 - Remind user that adding templates improves output quality
-
-## Execution Rules (Embedded)
-
-Workflows must support:
-- **Preconditions**: Clear verification methods; critical gates block execution
-- **Dependencies**: Structure `inputs_outputs` so dependencies are explicit; outputs feed inputs
-- **Error Handling**: Blockers can be documented; non-dependent agents continue
-
-## Required YAML Sections
-
-All generated workflows must include:
-- `name` and `description`
-- `people_involved`: roles with tools, knowledge_sources, and role-specific OKRs
-- `preconditions`: name, description, verification per gate
-- `overview`: tasks, phases, constraints
-- `inputs_outputs`: per role inputs and outputs lists
-- `workflow_okr` (optional): overall workflow-level objectives and key_results
 
 ## Document Skills
 

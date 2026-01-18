@@ -23,6 +23,19 @@
   "hooks": {
     "Stop": [
       {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python .claude/scripts/check_okrs.py",
+            "timeout": 30000
+          }
+        ]
+      }
+    ],
+    "SubagentStop": [
+      {
+        "matcher": "",
         "hooks": [
           {
             "type": "command",
@@ -34,3 +47,4 @@
     ]
   }
 }
+

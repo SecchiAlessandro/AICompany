@@ -1,0 +1,72 @@
+name: "cv-conversion"
+description: "Convert all source CV documents in templates folder to EZ_Template format while preserving content and applying consistent styling"
+
+people_involved:
+  - role: "cv-converter"
+    description: "Reads all source CVs, extracts content (text and images), and creates new CV documents matching the EZ_Template structure and styling"
+    tools:
+      - name: "/docx"
+        purpose: "Read source CVs (.doc/.docx) and EZ_Template, create new formatted CV documents"
+      - name: "/pdf"
+        purpose: "Read source CVs in PDF format"
+      - name: "Read"
+        purpose: "Read files for analysis"
+      - name: "Write"
+        purpose: "Save converted CVs to results folder"
+      - name: "Bash"
+        purpose: "Execute file operations (e.g., unpack docx for XML analysis)"
+    knowledge_sources:
+      - name: "EZ_Template.docx"
+        purpose: "Target template - copied as base for each conversion (preserves all formatting)"                                            
+        path: "templates/EZ_Template.docx"
+      - name: "Template_Specification.md"
+        purpose: "Template specification reference for verification of formatting, fonts, colors, and structure"
+        path: "domain knowledge/Template_Specification.md"
+      - name: "Source CVs"
+        purpose: "All source CV documents to be converted (auto-discovered)"
+        path: "templates/*.doc, *.docx, *.pdf (excluding EZ_Template.docx)"
+    okr:
+      objectives:
+        - "Convert all source CVs to match EZ_Template format exactly"
+      key_results:
+        - "Output CV has updated content based on candidate CV"
+        - "Candidate name is orange (#ED7D31) with small caps"
+        - "Candidate photo is circular and positioned top-right (if present in source)"
+        - "Company logo appears in header on all pages"
+        - "All section headers have bottom border underline"
+        - "Experience dates use 'MMM YYYY' format"
+        - "Technical keywords are bolded in bullet points"
+        - "Bullet points use Symbol font, not Unicode characters"
+        - "Font is Arial Narrow throughout"
+        - "Body text is 10pt, name is 28pt"
+        - "Page margins are 0.75 inch left/right, 1 inch top/bottom"
+        - "Text is justified (both alignment)"
+        - "Tab stops align dates, companies, and job titles correctly"
+        - "Education uses 'YYYY – YYYY' format with en-dash"
+        - "Multi-column layout for Technical Skills section"
+
+preconditions:
+  - name: "source_cvs_exist"
+    description: "At least one source CV file must exist in templates folder"
+    verification: "Scan templates/ for .doc, .docx, and .pdf files (excluding EZ_Template.docx)"
+  - name: "template_exists"
+    description: "EZ_Template.docx must exist as the target format template"
+    verification: "Check if templates/EZ_Template.docx exists"
+  - name: "docx_skill_available"
+    description: "The /docx skill must be available for document processing"
+    verification: "Verify /docx skill can be invoked"
+
+inputs_outputs:
+  "cv-converter":
+    inputs:
+      - "templates/*.doc, *.docx, *.pdf - All source CVs to convert (discovered dynamically)"
+      - "templates/EZ_Template.docx - Target format template (styling read dynamically)"
+    outputs:
+      - "results/<candidate_name>_EZ.docx - Converted CV for each source (one per input)"
+      - "results/shared.md - Batch status with per-CV completion summary"
+
+
+
+
+
+
