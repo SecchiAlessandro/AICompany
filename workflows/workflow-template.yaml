@@ -2,7 +2,7 @@
 # Copy this file to workflows/ and fill in your specific details
 
 name: "<workflow_name>"
-description: "<brief description of the workflow>"
+overview: "<Describe the main tasks and goals of this workflow>"
 
 # Who participates in this workflow
 people_involved:
@@ -23,33 +23,26 @@ people_involved:
         path: "<URL or path or description of how to access>"
       # Add more sources as needed
     
+    # What each role needs and produces
+    inputs_outputs:
+      - inputs: "<item role receives>"
+      - outputs: "<item role produces>"
+
+    # What must be true before starting
+    preconditions:
+      - name: "<gate_name>"
+        description: "<what must be verified>"
+        verification: "<how to check this condition>"
+      # Add more preconditions as needed
+
     # Success measurement for this role
     okr:
       objectives:
         - "<high-level goal for this role>"
       key_results:
-        - "<what to measure and target value for this role>"
-  
+        - result: "<key result description>"
+          validation:
+            - "<validation criterion 1: specific check>"
+            - "<validation criterion 2: specific check>"
+
 # Add more roles as needed
-
-# What must be true before starting
-preconditions:
-  - name: "<gate_name>"
-    description: "<what must be verified>"
-    verification: "<how to check this condition>"
-  # Add more preconditions as needed
-
-# High-level summary of the work
-overview: |
-  <Describe the main tasks and goals of this workflow>
-
-# What each role needs and produces
-inputs_outputs:
-  "<role_name>":
-    inputs:
-      - "<item role receives>"
-    outputs:
-      - "<item role produces>"
-  # Add more roles as needed
-
-

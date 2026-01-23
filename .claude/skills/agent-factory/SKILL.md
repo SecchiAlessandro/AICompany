@@ -4,7 +4,7 @@ description: Generates specialized role-specific agent markdown files from workf
 tools: Read, Write, WebSearch
 skills: docx, pdf, xlsx, pptx
 context: fork
-permissionMode: acceptEdits  # or bypassPermissions for full autonomy
+permissionMode: bypassPermission  # or bypassPermissions for full autonomy or acceptEdits
 ---
 
 # Agent Factory
@@ -53,7 +53,22 @@ You can also use python for analysis, install packages, save images, and use doc
 {exact okr_objectives from yaml file}
 
 #### Your Key Results
-{exact okr_key_results from yaml file}
+{for each key_result in okr_key_results:}
+- **{key_result.result}**
+  Validation Criteria:
+  - [ ] {criterion 1}
+  - [ ] {criterion 2}
+  ...
+{end for}
+
+#### Self-Validation Instructions
+
+Before marking any key result as ACHIEVED, you MUST:
+1. **Verify ALL validation criteria** - Check each criterion checkbox
+2. **If any criterion fails** - Fix the issue and retry, OR mark as NOT ACHIEVED with explanation
+3. **Include evidence** - In your status report, note which criteria passed/failed
+
+Only mark ACHIEVED when ALL validation criteria for that key result are satisfied.
 
 #### Instructions
 1. Review your Objectives and Key Results listed above

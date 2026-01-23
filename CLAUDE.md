@@ -9,8 +9,11 @@ Agent Workflow Orchestrator - a system that dynamically creates and orchestrates
 ## Commands
 
 ```bash
-# Install dependencies (required for document generation)
+# Install Node.js dependencies (required for document generation)
 npm install
+
+# Install Python dependencies (required for workflows and CV rendering)
+pip install -r requirements.txt
 
 # Verify OKR completion (used by stop hooks) - runs automatically
 python .claude/scripts/check_okrs.py
@@ -21,6 +24,8 @@ python .claude/scripts/check_okrs.py
 ```
 @orchestrator workflows/<workflow-name>.yaml   # Execute a workflow (management by objectives)
 @workflow-mapper                                # Create workflow from requirements
+@agent-factory                                  # Generate role agents from workflow YAML
+@Jinja2-cv                                      # Render CVs from docxtpl templates
 ```
 
 ## Architecture
@@ -37,11 +42,12 @@ User Request → @orchestrator → @workflow-mapper (if needed) → @agent-facto
 
 ### Core Meta-Agents and Skills
 
-| Agent | Location | Purpose |
-|-------|----------|---------|
+| Agent/Skill | Location | Purpose |
+|-------------|----------|---------|
 | **Orchestrator** | `.claude/agents/orchestrator.md` | Entry point; extracts OKRs from workflow YAML, creates shared.md, invokes agent-factory, spawns agents, monitors workflow status |
 | **Workflow Mapper** | `.claude/skills/workflow-mapper/SKILL.md` | Transforms user goals into structured YAML workflows |
 | **Agent Factory** | `.claude/skills/agent-factory/SKILL.md` | Generates role-specific agent `.md` files with embedded OKRs from workflow definitions |
+| **Jinja2-cv** | `.claude/skills/Jinja2-cv/SKILL.md` | Renders CVs from EZ_Template_docxtpl.docx using Jinja2/docxtpl for candidate data conversion |
 
 ### Execution Flow
 
@@ -65,9 +71,12 @@ User Request → @orchestrator → @workflow-mapper (if needed) → @agent-facto
 
 The stop hook in `.claude/settings.json` enforces OKR completion:
 - Runs `check_okrs.py` on every agent stop attempt
+- **No active workflow**: Allows stop if `shared.md` is empty or doesn't exist
 - **For sub-agents**: Blocks until agent section shows `COMPLETED` with all key results `ACHIEVED`
 - **For orchestrator**: Blocks until `WORKFLOW STATUS: COMPLETED` appears in shared.md
 - Agents cannot stop if any key result is `PENDING` or `NOT ACHIEVED`
+
+The hook intelligently detects whether a workflow is actually running to avoid blocking normal operations.
 
 Agents have autonomy to create their own execution plans to achieve their assigned objectives.
 
@@ -76,7 +85,7 @@ Agents have autonomy to create their own execution plans to achieve their assign
 | Directory | Purpose |
 |-----------|---------|
 | `.claude/agents/` | Agent definitions (orchestrator + dynamically generated role agents) |
-| `.claude/skills/` | Skill definitions (workflow-mapper, plan, agent-factory) |
+| `.claude/skills/` | Skill definitions (workflow-mapper, agent-factory, Jinja2-cv) |
 | `.claude/scripts/` | Hook scripts (`check_okrs.py` for OKR validation) |
 | `workflows/` | Workflow YAML definitions |
 | `templates/` | Input/output document templates for workflows |
@@ -122,6 +131,7 @@ Orchestrator marks final workflow status:
 ## Document Skills
 
 Available for document processing:
+- `@Jinja2-cv` - Renders CVs from docxtpl templates using candidate data JSON
 - `/docx` - Word documents with tracked changes
 - `/pdf` - PDF reading and form filling
 - `/xlsx` - Spreadsheets with formulas and data analysis

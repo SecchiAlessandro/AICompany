@@ -34,16 +34,23 @@ Use the **AskUserQuestion tool** to gather workflow details interactively.
 
 1. **Workflow goal/description**: What is the main goal or purpose of this workflow?
 2. **Key results**: What measurable outcomes define success? What must be achieved?
-
-### Optional Questions (Only if User Wants to Specify)
-
-3. **Specific roles**: Do you have specific roles/agents that must be involved?
+3. **Validation criteria**: For each key result, what specific checks confirm it's achieved? (Optional - can be auto-generated)
+4. **Specific roles**: Do you have specific roles/agents that must be involved?
    - If YES: For each role, ask:
      - Role name and description
      - Role-specific OKRs (objectives and key results)
      - Required tools (including skills like /docx, /pdf, /xlsx, /pptx)
      - Knowledge sources (name, purpose, path)
-   - If NO: Skill will derive required roles automatically based on goal and key results
+   - If NO: Skill will:
+      1. Analyze goal and key results
+      2. Identify required roles/agents needed to achieve results
+      3. Derive for each role:
+        - Role-specific OKRs aligned with workflow key results
+        - Required tools and skills
+        - Knowledge sources needed
+        - Preconditions for that role
+        - Input/output relationships
+      4. Present derived workflow to user for confirmation
 
 ## OKR Validation Criteria (CRITICAL)
 
@@ -57,6 +64,30 @@ All key results MUST meet these validation criteria:
 
 
 **Why This Matters**: The stop hook system validates OKRs to determine when agents can complete. Vague or unmeasurable key results will prevent proper validation and block workflow completion.
+
+## Validation Criteria Generation
+
+When user doesn't provide validation criteria, auto-generate based on output type:
+
+| Output Type | Auto-Generated Validation Criteria |
+|-------------|-----------------------------------|
+| **File output** | File exists at expected path; File format is valid; File contains required data/sections |
+| **UI/HTML** | Page renders without errors; Layout is responsive; Core functionality works |
+| **API** | Endpoints respond with correct status codes; Response format matches schema |
+| **Calculation/Analysis** | Input data processed completely; Results saved to results/ folder; Values within expected ranges |
+| **Document** | Document format valid; All placeholders filled; Required sections present |
+| **Data transformation** | All records processed; Output schema matches specification; No data loss |
+
+### Key Results Schema
+
+Generate key results in extended format:
+```yaml
+key_results:
+  - result: "<key result description>"
+    validation:
+      - "<criterion 1>"
+      - "<criterion 2>"
+```
 
 ## Using AskUserQuestion Tool
 

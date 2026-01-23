@@ -32,7 +32,10 @@
       "Skill(workflow-mapper)",
       "Skill(agent-factory)",
       "Skill(docx)",
-      "Bash(\"C:\\\\Program Files\\\\LibreOffice\\\\program\\\\soffice.exe\" --headless --convert-to docx --outdir \"C:\\\\AI_Projects\\\\AICompany\\\\results\" \"C:\\\\AI_Projects\\\\AICompany\\\\templates\\\\Mario Vasile.doc\")"
+      "Bash(\"C:\\\\Program Files\\\\LibreOffice\\\\program\\\\soffice.exe\" --headless --convert-to docx --outdir \"C:\\\\AI_Projects\\\\AICompany\\\\results\" \"C:\\\\AI_Projects\\\\AICompany\\\\templates\\\\Mario Vasile.doc\")",
+      "Bash(git log:*)",
+      "Bash(echo:*)",
+      "Bash(venvScriptspython resultsexec_report.py)"
     ]
   }
 }

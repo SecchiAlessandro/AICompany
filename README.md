@@ -6,8 +6,11 @@ An intelligent system that dynamically creates and orchestrates AI agents based 
 
 - **Dynamic Agent Creation**: Spawn specialized agents on-the-fly based on workflow requirements
 - **Workflow Mapping**: Define inputs, outputs, roles, knowledge, and tools for each workflow step
-- **OKR-Driven Execution**: Workflows complete when objectives and key results are achieved
+- **OKR-Driven Execution**: Workflows complete when objectives and key results are achieved (enforced by stop hooks)
 - **Shared Results**: All agent outputs stored in `results/` folder with summaries in `results/shared.md`
+- **CV Generation**: Automated CV rendering from structured data using Jinja2/docxtpl templates
+- **Dependency Management**: Automatic dependency graph construction and sequential/parallel agent execution
+- **Stop Hook Validation**: Agents cannot terminate until all key results show ACHIEVED status
 
 ## Architecture
 
@@ -32,11 +35,12 @@ An intelligent system that dynamically creates and orchestrates AI agents based 
            └─────────────────┘
 ```
 
-### Core Agents
+### Core Agents and Skills
 
 1. **Orchestrator** - Entry point; loads workflow YAML, builds dependency graph, spawns role agents, monitors until OKRs achieved
 2. **Workflow Mapper** - Transforms user goals into structured workflow YAML files
 3. **Agent Factory** - Generates role-specific agents from workflow definitions
+4. **Jinja2-cv** - Renders CVs from docxtpl templates using candidate data JSON
 
 ## Getting Started
 
@@ -51,7 +55,17 @@ An intelligent system that dynamically creates and orchestrates AI agents based 
 ```bash
 git clone https://github.com/SecchiAlessandro/AICompany.git
 cd AICompany
+
+# Install Node.js dependencies (for document generation)
 npm install
+
+# Install Python dependencies (for workflows and CV rendering)
+pip install -r requirements.txt
+```
+
+**Minimal installation (core workflow features only):**
+```bash
+pip install pyyaml pydantic
 ```
 
 ### Running Workflows
@@ -67,6 +81,12 @@ npm install
 ```
 The agent will ask questions to build the workflow structure.
 
+**Render a CV from template:**
+```
+@Jinja2-cv
+```
+Converts candidate data to formatted CV using docxtpl templates.
+
 **View results:**
 - Outputs in `results/` folder
 - Summary of all agent activities in `results/shared.md`
@@ -77,11 +97,11 @@ The agent will ask questions to build the workflow structure.
 AICompany/
 ├── .claude/
 │   ├── agents/           # Core meta-agents + generated role agents
-│   ├── skills/           # Skill definitions (workflow-mapper, agent-factory)
-│   ├── scripts/          # Automation scripts (OKR checking)
+│   ├── skills/           # Skill definitions (workflow-mapper, agent-factory, Jinja2-cv)
+│   ├── scripts/          # Automation scripts (OKR checking, CV rendering)
 │   └── settings.json     # Claude Code configuration
 ├── workflows/            # Workflow YAML definitions
-├── templates/            # Input/output document templates
+├── templates/            # Input/output document templates (e.g., CV templates)
 ├── domain knowledge/     # Domain-specific reference materials
 ├── results/              # Generated outputs + shared.md
 ├── CLAUDE.md             # Claude Code instructions (detailed)
@@ -117,6 +137,41 @@ Status definitions:
 - `blocked` - Cannot proceed due to missing dependencies
 - `partial` - Some outputs produced, others pending
 
+## Available Workflows
+
+- `workflow-template.yaml` - Template for creating new workflows with all required sections
+- `test-validation-criteria.yaml` - Example validation workflow demonstrating OKR tracking
+
+## Additional Features
+
+### CV Rendering (Jinja2-cv)
+
+The Jinja2-cv skill allows automated CV generation from structured data:
+
+1. Extract candidate data from source CV (PDF/DOCX)
+2. Generate `candidate_data.json` with standardized structure
+3. Render formatted CV using docxtpl template (`templates/EZ_Template_docxtpl.docx`)
+
+**Usage:**
+```
+@Jinja2-cv
+```
+Then provide the source CV file path when prompted.
+
+### Stop Hook System
+
+The system uses Python-based stop hooks to enforce OKR completion:
+- Located in `.claude/scripts/check_okrs.py`
+- Automatically runs when agents attempt to stop
+- **Only blocks during active workflows** - allows normal stops when no workflow is running
+- Blocks termination until all key results show `ACHIEVED`
+- Ensures workflow quality and completeness
+
+**How it works:**
+- If `shared.md` is empty/doesn't exist → Allows stop (no workflow)
+- If workflow is active → Validates OKRs before allowing stop
+- If `WORKFLOW STATUS: COMPLETED` → Allows stop (workflow done)
+
 ## Troubleshooting
 
 **npm install fails**: Ensure Node.js v18+ is installed (`node --version`)
@@ -124,6 +179,8 @@ Status definitions:
 **Agents not executing**: Verify workflow YAML syntax and that preconditions are met
 
 **OKR check errors**: Ensure Python 3 is installed (`python --version`)
+
+**CV rendering fails**: Ensure docxtpl dependencies are installed (`pip install docxtpl python-docx jinja2`)
 
 ## License
 
