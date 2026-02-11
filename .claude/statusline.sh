@@ -201,65 +201,53 @@ fi
   echo "[$TIMESTAMP] Extracted: dir=${current_dir:-}, model=${model_name:-}, version=${model_version:-}, git=${git_branch:-}, context=${context_pct:-}, cost=${cost_usd:-}, cost_ph=${cost_per_hour:-}, tokens=${tot_tokens:-}, tpm=${tpm:-}"
 } >> "$LOG_FILE" 2>/dev/null
 
-# ---- render statusline ----
-# Line 1: Core info (directory, git, model, claude code version, output style)
-printf '📁 %s%s%s' "$(dir_color)" "$current_dir" "$(rst)"
+# ---- render statusline (single line) ----
+output=""
+
+# Directory (shortened to just folder name)
+dir_short="${current_dir##*/}"
+[ -z "$dir_short" ] && dir_short="$current_dir"
+output="📁 $(dir_color)${dir_short}$(rst)"
+
+# Git branch
 if [ -n "$git_branch" ]; then
-  printf '  🌿 %s%s%s' "$(git_color)" "$git_branch" "$(rst)"
+  output="$output  🌿 $(git_color)${git_branch}$(rst)"
 fi
-printf '  🤖 %s%s%s' "$(model_color)" "$model_name" "$(rst)"
-if [ -n "$model_version" ] && [ "$model_version" != "null" ]; then
-  printf '  🏷️ %s%s%s' "$(version_color)" "$model_version" "$(rst)"
-fi
+
+# Model
+output="$output  🤖 $(model_color)${model_name}$(rst)"
+
+# Claude Code version
 if [ -n "$cc_version" ] && [ "$cc_version" != "null" ]; then
-  printf '  📟 %sv%s%s' "$(cc_version_color)" "$cc_version" "$(rst)"
-fi
-if [ -n "$output_style" ] && [ "$output_style" != "null" ]; then
-  printf '  🎨 %s%s%s' "$(style_color)" "$output_style" "$(rst)"
+  output="$output  📟 $(cc_version_color)v${cc_version}$(rst)"
 fi
 
-# Line 2: Context and session time
-line2=""
+# Context remaining with mini progress bar
 if [ -n "$context_pct" ]; then
-  context_bar=$(progress_bar "$context_remaining_pct" 10)
-  line2="🧠 $(context_color)Context Remaining: ${context_pct} [${context_bar}]$(rst)"
-fi
-if [ -z "$line2" ] && [ -z "$context_pct" ]; then
-  line2="🧠 $(context_color)Context Remaining: TBD$(rst)"
+  context_bar=$(progress_bar "$context_remaining_pct" 8)
+  output="$output  🧠 $(context_color)${context_pct}[${context_bar}]$(rst)"
 fi
 
-# Line 3: Cost and usage analytics
-line3=""
+# Cost and burn rate
 if [ -n "$cost_usd" ] && [[ "$cost_usd" =~ ^[0-9.]+$ ]]; then
+  cost_fmt=$(printf '%.2f' "$cost_usd")
   if [ -n "$cost_per_hour" ] && [[ "$cost_per_hour" =~ ^[0-9.]+$ ]]; then
-    cost_per_hour_formatted=$(printf '%.2f' "$cost_per_hour")
-    line3="💰 $(cost_color)\$$(printf '%.2f' "$cost_usd")$(rst) ($(burn_color)\$${cost_per_hour_formatted}/h$(rst))"
+    burn_fmt=$(printf '%.2f' "$cost_per_hour")
+    output="$output  💰 $(cost_color)\$${cost_fmt}$(rst)($(burn_color)\$${burn_fmt}/h$(rst))"
   else
-    line3="💰 $(cost_color)\$$(printf '%.2f' "$cost_usd")$(rst)"
+    output="$output  💰 $(cost_color)\$${cost_fmt}$(rst)"
   fi
 fi
+
+# Tokens
 if [ -n "$tot_tokens" ] && [[ "$tot_tokens" =~ ^[0-9]+$ ]]; then
   if [ -n "$tpm" ] && [[ "$tpm" =~ ^[0-9.]+$ ]]; then
-    tpm_formatted=$(printf '%.0f' "$tpm")
-    if [ -n "$line3" ]; then
-      line3="$line3  📊 $(usage_color)${tot_tokens} tok (${tpm_formatted} tpm)$(rst)"
-    else
-      line3="📊 $(usage_color)${tot_tokens} tok (${tpm_formatted} tpm)$(rst)"
-    fi
+    tpm_fmt=$(printf '%.0f' "$tpm")
+    output="$output  📊 $(usage_color)${tot_tokens}tok(${tpm_fmt}tpm)$(rst)"
   else
-    if [ -n "$line3" ]; then
-      line3="$line3  📊 $(usage_color)${tot_tokens} tok$(rst)"
-    else
-      line3="📊 $(usage_color)${tot_tokens} tok$(rst)"
-    fi
+    output="$output  📊 $(usage_color)${tot_tokens}tok$(rst)"
   fi
 fi
 
-# Print lines
-if [ -n "$line2" ]; then
-  printf '\n%s' "$line2"
-fi
-if [ -n "$line3" ]; then
-  printf '\n%s' "$line3"
-fi
-printf '\n'
+# Print single line (no trailing newline for statusline)
+printf '%s' "$output"
