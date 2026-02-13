@@ -12,9 +12,13 @@ people_involved:
     tools:
       - name: "<tool_name>"
         purpose: "<what it's used for in this workflow>"
-      # Tools can include: Read, Write, Edit, run_in_terminal, or skills like /docx, /pdf, /xlsx, /pptx
+      # Generic tools: Read, Write, Edit, Bash, WebSearch
       # The agent can also use python code for data analysis, install packages, save results as images
-    # Add more tools/skills as needed
+    skills:
+      - name: "<skill_name>"
+        purpose: "<what it's used for in this workflow>"
+      # Auto-discovered from .claude/skills/ by workflow-mapper
+      # Examples: docx, pdf, xlsx, pptx, gog, nano-banana-pro, frontend-design, etc.
 
     # Where to find relevant information
     knowledge_sources:

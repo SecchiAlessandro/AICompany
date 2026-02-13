@@ -6,6 +6,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Agent Workflow Orchestrator - a system that dynamically creates and orchestrates AI agents based on workflow YAML definitions. The system uses three core meta-agents that work together to transform user goals into executed workflows with tracked results.
 
+## Prerequisites
+
+- **Node.js** (v18+) — for document generation
+- **Python 3** — for workflows, CV rendering, and OKR validation
+
 ## Commands
 
 ```bash
@@ -15,8 +20,14 @@ npm install
 # Install Python dependencies (required for workflows and CV rendering)
 pip install -r requirements.txt
 
+# Minimal installation (core workflow features only)
+pip install pyyaml pydantic
+
 # Verify OKR completion (used by stop hooks) - runs automatically
 python .claude/scripts/check_okrs.py
+
+# Render a CV directly from CLI
+python .claude/skills/Jinja2-cv/scripts/render_cv.py --template <template.docx> --data-json <candidate_data.json> --out <output.docx> [--photo <photo.jpg>]
 ```
 
 ## Invoking the System
@@ -78,6 +89,8 @@ The stop hook in `.claude/settings.json` enforces OKR completion:
 
 The hook intelligently detects whether a workflow is actually running to avoid blocking normal operations.
 
+Exit codes: `0` = allow stop, `2` = block stop. When debugging hook issues, check stderr output from `check_okrs.py`.
+
 Agents have autonomy to create their own execution plans to achieve their assigned objectives.
 
 ## Key Directories
@@ -94,12 +107,16 @@ Agents have autonomy to create their own execution plans to achieve their assign
 
 ## Workflow YAML Schema
 
-See `workflows/workflow-template.yaml` for complete schema. Required sections:
+See `workflows/workflow-template.yaml` for complete schema. Top-level fields:
 
-- `people_involved` - Roles with tools, knowledge_sources, and role-specific OKRs
-- `preconditions` - Gates with name, description, verification method
+- `name` - Workflow identifier
 - `overview` - Main tasks, phases, constraints
-- `inputs_outputs` - Per-role inputs and outputs (defines dependency graph)
+- `people_involved` - List of roles, each containing:
+  - `tools` - Software and skills the role uses
+  - `knowledge_sources` - Reference materials with paths
+  - `inputs_outputs` - What the role receives and produces (defines the dependency graph)
+  - `preconditions` - Gates that must be verified before starting
+  - `okr` - Objectives and key results with validation criteria
 
 ## Output Conventions
 

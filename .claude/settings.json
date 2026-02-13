@@ -18,7 +18,7 @@
   },
   "statusLine": {
     "type": "command",
-    "command": "\"C:\\Program Files\\Git\\bin\\bash.exe\" \"C:\\AI_Projects\\AICompany\\.claude\\statusline.sh\""
+    "command": ".claude/statusline.sh"
   },
   "hooks": {
     "Stop": [
@@ -26,7 +26,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python .claude/scripts/check_okrs.py",
+            "command": "python3 .claude/scripts/check_okrs.py",
             "timeout": 30
           }
         ]
@@ -37,7 +37,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python .claude/scripts/check_okrs.py",
+            "command": "python3 .claude/scripts/check_okrs.py",
             "timeout": 30
           }
         ]

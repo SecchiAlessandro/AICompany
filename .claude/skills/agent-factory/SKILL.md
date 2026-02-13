@@ -25,7 +25,7 @@ Generate role-specific agents from workflow YAML and save to `.claude/agents/`.
 name: {role_name}
 description: {role_description}
 tools: {tools}
-skills: {required skills}
+skills: {required skills}  # sourced from role.skills field in workflow YAML
 context: fork
 model: opus
 ---
