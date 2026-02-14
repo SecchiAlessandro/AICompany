@@ -1,0 +1,190 @@
+name: "eu-energy-market-trends"
+overview: >
+  Comprehensive analysis of European energy market trends. Four specialized research agents
+  gather the latest data on electricity & gas prices, renewable energy, fossil fuels & carbon markets,
+  and energy demand & policy from public EU sources (Eurostat, IEA, ENTSO-E, ACER, European Commission).
+  A fifth compiler agent assembles all research into a single, well-structured Excel workbook
+  with multiple sheets, charts, and source citations. Target coverage: 5+ energy categories,
+  10+ EU countries, 2024-2025 data points.
+
+people_involved:
+  - role: "electricity-gas-price-researcher"
+    description: "Researches latest electricity and natural gas wholesale/retail prices across EU member states"
+    tools:
+      - name: "WebSearch"
+        purpose: "Search for latest electricity and gas price data from Eurostat, ENTSO-E, ACER"
+      - name: "Bash"
+        purpose: "Run Python scripts for data processing and CSV export"
+      - name: "Write"
+        purpose: "Save research data as structured CSV files"
+    skills: []
+    knowledge_sources:
+      - name: "Eurostat Energy Statistics"
+        purpose: "Official EU electricity and gas price data for household and industrial consumers"
+        path: "https://ec.europa.eu/eurostat/web/energy/data"
+      - name: "ENTSO-E Transparency Platform"
+        purpose: "Real-time and historical electricity market data across European countries"
+        path: "https://transparency.entsoe.eu/"
+      - name: "ACER Market Monitoring"
+        purpose: "EU Agency energy market reports and wholesale price analysis"
+        path: "https://www.acer.europa.eu/"
+    inputs_outputs:
+      - inputs: "Public web data on electricity and gas prices"
+      - outputs: "results/electricity_gas_prices.csv with columns: country, price_type, unit, 2024_value, 2025_value, source_url"
+    preconditions: []
+    okr:
+      objectives:
+        - "Gather comprehensive electricity and natural gas price data across major EU countries"
+      key_results:
+        - result: "CSV file with electricity and gas retail/wholesale prices for at least 10 EU countries"
+          validation:
+            - "File results/electricity_gas_prices.csv exists"
+            - "Contains data for at least 10 distinct EU countries"
+            - "Includes both electricity and gas price categories"
+            - "All rows have source_url citations"
+            - "Data includes 2024 or 2025 figures"
+
+  - role: "renewable-energy-researcher"
+    description: "Researches renewable energy capacity, generation, and investment trends across Europe"
+    tools:
+      - name: "WebSearch"
+        purpose: "Search for renewable energy statistics from IRENA, Eurostat, WindEurope, SolarPower Europe"
+      - name: "Bash"
+        purpose: "Run Python scripts for data processing and CSV export"
+      - name: "Write"
+        purpose: "Save research data as structured CSV files"
+    skills: []
+    knowledge_sources:
+      - name: "Eurostat Renewable Energy Statistics"
+        purpose: "Official EU renewable energy share and capacity data"
+        path: "https://ec.europa.eu/eurostat/web/energy/data"
+      - name: "IRENA Renewable Capacity Statistics"
+        purpose: "International renewable energy capacity and generation data"
+        path: "https://www.irena.org/Statistics"
+      - name: "European Commission REPowerEU"
+        purpose: "EU renewable energy targets and policy framework"
+        path: "https://commission.europa.eu/strategy-and-policy/priorities-2019-2024/european-green-deal/repowereu-plan_en"
+    inputs_outputs:
+      - inputs: "Public web data on renewable energy in Europe"
+      - outputs: "results/renewable_energy.csv with columns: country, technology, capacity_gw, generation_twh, share_pct, year, source_url"
+    preconditions: []
+    okr:
+      objectives:
+        - "Compile latest renewable energy capacity, generation, and share data for EU countries"
+      key_results:
+        - result: "CSV file with renewable energy data covering solar, wind, and hydro for at least 10 EU countries"
+          validation:
+            - "File results/renewable_energy.csv exists"
+            - "Contains data for at least 10 distinct EU countries"
+            - "Covers at least 3 renewable technologies (solar, wind, hydro)"
+            - "All rows have source_url citations"
+            - "Data includes 2024 or 2025 figures"
+
+  - role: "fossil-fuels-carbon-researcher"
+    description: "Researches fossil fuel trends (oil, coal, LNG) and EU carbon market (ETS) prices and emissions"
+    tools:
+      - name: "WebSearch"
+        purpose: "Search for fossil fuel and carbon market data from IEA, European Commission, ICE"
+      - name: "Bash"
+        purpose: "Run Python scripts for data processing and CSV export"
+      - name: "Write"
+        purpose: "Save research data as structured CSV files"
+    skills: []
+    knowledge_sources:
+      - name: "IEA Energy Data"
+        purpose: "International Energy Agency oil, gas, and coal market reports"
+        path: "https://www.iea.org/data-and-statistics"
+      - name: "EU ETS Data"
+        purpose: "EU Emissions Trading System carbon price and allowance data"
+        path: "https://climate.ec.europa.eu/eu-action/eu-emissions-trading-system-eu-ets_en"
+      - name: "BP Statistical Review of World Energy"
+        purpose: "Comprehensive global energy statistics including European fossil fuel data"
+        path: "https://www.bp.com/en/global/corporate/energy-economics/statistical-review-of-world-energy.html"
+    inputs_outputs:
+      - inputs: "Public web data on fossil fuels and carbon markets in Europe"
+      - outputs: "results/fossil_fuels_carbon.csv with columns: category, metric, unit, value, year, trend, source_url"
+    preconditions: []
+    okr:
+      objectives:
+        - "Gather latest fossil fuel supply/price data and EU carbon market trends"
+      key_results:
+        - result: "CSV file covering oil, coal, LNG prices and EU ETS carbon prices with trend data"
+          validation:
+            - "File results/fossil_fuels_carbon.csv exists"
+            - "Contains data for oil, coal, LNG, and EU ETS carbon prices"
+            - "All rows have source_url citations"
+            - "Data includes 2024 or 2025 figures"
+            - "Includes price trend direction (up/down/stable)"
+
+  - role: "energy-demand-policy-researcher"
+    description: "Researches EU energy demand patterns, consumption forecasts, energy security, and regulatory developments"
+    tools:
+      - name: "WebSearch"
+        purpose: "Search for energy demand and policy data from European Commission, Eurostat, IEA"
+      - name: "Bash"
+        purpose: "Run Python scripts for data processing and CSV export"
+      - name: "Write"
+        purpose: "Save research data as structured CSV files"
+    skills: []
+    knowledge_sources:
+      - name: "Eurostat Energy Consumption"
+        purpose: "Final energy consumption data by sector and country"
+        path: "https://ec.europa.eu/eurostat/web/energy/data"
+      - name: "European Commission Energy Union"
+        purpose: "EU energy policy updates, REPowerEU progress, energy security measures"
+        path: "https://commission.europa.eu/energy-climate-change-environment/implementation-eu-countries_en"
+      - name: "IEA Europe Energy Outlook"
+        purpose: "Energy demand forecasts and policy analysis for European region"
+        path: "https://www.iea.org/regions/europe"
+    inputs_outputs:
+      - inputs: "Public web data on energy demand and EU policy"
+      - outputs: "results/energy_demand_policy.csv with columns: country_or_eu, metric, sector, value, unit, year, source_url"
+    preconditions: []
+    okr:
+      objectives:
+        - "Compile energy demand data by sector and summarize key EU energy policy developments"
+      key_results:
+        - result: "CSV file with energy demand by sector for at least 10 EU countries plus key policy milestones"
+          validation:
+            - "File results/energy_demand_policy.csv exists"
+            - "Contains demand data for at least 10 EU countries"
+            - "Covers at least 3 sectors (residential, industrial, transport)"
+            - "Includes key 2024-2025 policy developments"
+            - "All rows have source_url citations"
+
+  - role: "excel-compiler"
+    description: "Assembles all research CSV files into a single comprehensive Excel workbook with formatted sheets, charts, and summary dashboard"
+    tools:
+      - name: "Read"
+        purpose: "Read all CSV research files from results/ directory"
+      - name: "Bash"
+        purpose: "Run Python with openpyxl to create the final Excel workbook"
+      - name: "Write"
+        purpose: "Write Python scripts for Excel generation"
+    skills:
+      - name: "xlsx"
+        purpose: "Create the final formatted Excel workbook with multiple sheets, charts, and styling"
+    knowledge_sources: []
+    inputs_outputs:
+      - inputs: "results/electricity_gas_prices.csv"
+      - inputs: "results/renewable_energy.csv"
+      - inputs: "results/fossil_fuels_carbon.csv"
+      - inputs: "results/energy_demand_policy.csv"
+      - outputs: "results/EU_Energy_Market_Trends_2025.xlsx"
+    preconditions:
+      - name: "research_data_available"
+        description: "All four research CSV files must exist in results/"
+        verification: "Check that electricity_gas_prices.csv, renewable_energy.csv, fossil_fuels_carbon.csv, and energy_demand_policy.csv all exist in results/"
+    okr:
+      objectives:
+        - "Create a professional Excel workbook compiling all European energy market research into a clear, well-structured report"
+      key_results:
+        - result: "Single .xlsx file with 5+ sheets covering all energy categories, formatted with charts and source citations"
+          validation:
+            - "File results/EU_Energy_Market_Trends_2025.xlsx exists"
+            - "Workbook contains at least 5 sheets (Summary/Dashboard, Electricity & Gas Prices, Renewable Energy, Fossil Fuels & Carbon, Energy Demand & Policy)"
+            - "Summary sheet includes key highlights and overview of all categories"
+            - "Each data sheet includes at least one chart visualizing trends"
+            - "All data cells are properly formatted (numbers, percentages, currencies)"
+            - "Source citations are included on each sheet"
+            - "Data covers at least 10 EU countries across all categories"

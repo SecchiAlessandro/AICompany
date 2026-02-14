@@ -1,12 +1,14 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { api } from "@/lib/api";
+import { useExecutionStore } from "@/stores/executionStore";
 import type { WorkflowSummary } from "@/types";
 import { GitBranch, Play, Trash2, Plus, Users } from "lucide-react";
 
 export default function WorkflowListPage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { setActiveExecution } = useExecutionStore();
 
   const { data: workflows = [] } = useQuery<WorkflowSummary[]>({
     queryKey: ["workflows"],
@@ -19,8 +21,11 @@ export default function WorkflowListPage() {
   });
 
   const executeMutation = useMutation({
-    mutationFn: api.executeWorkflow,
-    onSuccess: () => navigate("/monitor"),
+    mutationFn: api.startExecution,
+    onSuccess: (data) => {
+      setActiveExecution(data);
+      navigate("/monitor");
+    },
   });
 
   return (
@@ -74,10 +79,11 @@ export default function WorkflowListPage() {
               <div className="flex items-center gap-2 opacity-0 transition-opacity group-hover:opacity-100">
                 <button
                   onClick={() => executeMutation.mutate(wf.filename)}
-                  className="flex items-center gap-1 rounded-lg bg-emerald-500/10 px-3 py-1.5 text-xs font-medium text-emerald-400 hover:bg-emerald-500/20"
+                  disabled={executeMutation.isPending}
+                  className="flex items-center gap-1 rounded-lg bg-emerald-500/10 px-3 py-1.5 text-xs font-medium text-emerald-400 hover:bg-emerald-500/20 disabled:opacity-50"
                 >
                   <Play className="h-3 w-3" />
-                  Execute
+                  {executeMutation.isPending ? "Starting..." : "Execute"}
                 </button>
                 <button
                   onClick={() => {
@@ -92,6 +98,12 @@ export default function WorkflowListPage() {
               </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {executeMutation.isError && (
+        <div className="rounded-lg border border-rose-500/20 bg-rose-500/5 px-4 py-3 text-sm text-rose-400">
+          Failed to start execution: {executeMutation.error?.message}
         </div>
       )}
     </div>

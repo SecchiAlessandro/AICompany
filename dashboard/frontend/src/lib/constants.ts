@@ -83,6 +83,14 @@ export const BUILDER_ROUNDS = [
   },
 ];
 
+export const ROLE_QUESTIONS = [
+  { id: "name", label: "Role name", type: "text" as const, placeholder: "e.g., Data Analyst" },
+  { id: "description", label: "Role description", type: "textarea" as const, placeholder: "What does this role do?" },
+  { id: "objectives", label: "Objectives", type: "textarea" as const, placeholder: "Main objectives for this role (one per line)" },
+  { id: "keyResults", label: "Key Results", type: "textarea" as const, placeholder: "Measurable key results (one per line)" },
+  { id: "inputsOutputs", label: "Inputs & Outputs", type: "textarea" as const, placeholder: "What this role receives and produces (one per line, format: input -> output)" },
+];
+
 // Status color mapping
 export const STATUS_COLORS = {
   PENDING: {

@@ -11,10 +11,10 @@ interface YamlPreviewProps {
 }
 
 export default function YamlPreview({ editable = false, onYamlChange }: YamlPreviewProps) {
-  const { answers } = useWorkflowBuilderStore();
+  const { answers, roles } = useWorkflowBuilderStore();
   const [copied, setCopied] = useState(false);
 
-  const yaml = useMemo(() => generateWorkflowYaml(answers), [answers]);
+  const yaml = useMemo(() => generateWorkflowYaml(answers, roles), [answers, roles]);
 
   const handleCopy = async () => {
     await navigator.clipboard.writeText(yaml);

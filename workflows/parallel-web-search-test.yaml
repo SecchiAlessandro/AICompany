@@ -1,0 +1,94 @@
+# Parallel Web Search Test Workflow
+# Tests 4 agents performing independent web searches in parallel
+
+name: "parallel-web-search-test"
+overview: "Test workflow that spawns 4 agents to perform independent web searches on different topics simultaneously. Each agent searches for a distinct topic using WebSearch, compiles findings into a markdown summary, and saves it to results/. Validates parallel agent coordination and web search capabilities."
+
+people_involved:
+  - role: "tech-researcher"
+    description: "Searches the web for the latest trends in artificial intelligence and summarizes findings"
+    tools:
+      - name: "WebSearch"
+        purpose: "Search the web for AI trends and recent developments"
+      - name: "Write"
+        purpose: "Save search findings to a markdown file"
+    knowledge_sources: []
+    inputs_outputs:
+      - inputs: "Search topic: latest trends in artificial intelligence"
+      - outputs: "results/tech-researcher-findings.md"
+    preconditions: []
+    okr:
+      objectives:
+        - "Research and summarize the latest AI trends from the web"
+      key_results:
+        - result: "Produce a markdown summary with at least 3 relevant web search results on AI trends"
+          validation:
+            - "File results/tech-researcher-findings.md exists"
+            - "File contains at least 3 distinct search findings with source references"
+            - "File is valid markdown with proper headings and structure"
+
+  - role: "science-researcher"
+    description: "Searches the web for recent breakthroughs in space exploration and summarizes findings"
+    tools:
+      - name: "WebSearch"
+        purpose: "Search the web for space exploration breakthroughs"
+      - name: "Write"
+        purpose: "Save search findings to a markdown file"
+    knowledge_sources: []
+    inputs_outputs:
+      - inputs: "Search topic: recent breakthroughs in space exploration"
+      - outputs: "results/science-researcher-findings.md"
+    preconditions: []
+    okr:
+      objectives:
+        - "Research and summarize recent space exploration breakthroughs from the web"
+      key_results:
+        - result: "Produce a markdown summary with at least 3 relevant web search results on space exploration"
+          validation:
+            - "File results/science-researcher-findings.md exists"
+            - "File contains at least 3 distinct search findings with source references"
+            - "File is valid markdown with proper headings and structure"
+
+  - role: "health-researcher"
+    description: "Searches the web for current developments in global health and summarizes findings"
+    tools:
+      - name: "WebSearch"
+        purpose: "Search the web for global health developments"
+      - name: "Write"
+        purpose: "Save search findings to a markdown file"
+    knowledge_sources: []
+    inputs_outputs:
+      - inputs: "Search topic: current developments in global health"
+      - outputs: "results/health-researcher-findings.md"
+    preconditions: []
+    okr:
+      objectives:
+        - "Research and summarize current global health developments from the web"
+      key_results:
+        - result: "Produce a markdown summary with at least 3 relevant web search results on global health"
+          validation:
+            - "File results/health-researcher-findings.md exists"
+            - "File contains at least 3 distinct search findings with source references"
+            - "File is valid markdown with proper headings and structure"
+
+  - role: "climate-researcher"
+    description: "Searches the web for the latest climate change news and policy updates and summarizes findings"
+    tools:
+      - name: "WebSearch"
+        purpose: "Search the web for climate change news and policies"
+      - name: "Write"
+        purpose: "Save search findings to a markdown file"
+    knowledge_sources: []
+    inputs_outputs:
+      - inputs: "Search topic: latest climate change news and policy updates"
+      - outputs: "results/climate-researcher-findings.md"
+    preconditions: []
+    okr:
+      objectives:
+        - "Research and summarize the latest climate change news and policies from the web"
+      key_results:
+        - result: "Produce a markdown summary with at least 3 relevant web search results on climate change"
+          validation:
+            - "File results/climate-researcher-findings.md exists"
+            - "File contains at least 3 distinct search findings with source references"
+            - "File is valid markdown with proper headings and structure"

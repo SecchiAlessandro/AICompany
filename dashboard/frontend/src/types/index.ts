@@ -152,3 +152,88 @@ export interface SkillInfo {
   description: string;
   triggers: string[];
 }
+
+// --- Execution (CLI wrapper) ---
+export type ExecutionStateType =
+  | "starting"
+  | "running"
+  | "awaiting_input"
+  | "completed"
+  | "failed"
+  | "stopped";
+
+export interface PendingQuestion {
+  text: string;
+  context: string;
+}
+
+export interface CLIEvent {
+  timestamp: string;
+  event_type: string; // text, tool_use, tool_result, result, system_summary, stderr, raw_text
+  role: string; // assistant, system, user, tool, error
+  content: CLIEventContent;
+}
+
+export interface CLIEventContent {
+  text?: string;
+  tools?: { name: string; input: string }[];
+  cost_usd?: number;
+  duration_ms?: number;
+  session_id?: string;
+}
+
+export interface ExecutionSummary {
+  id: string;
+  workflow_name: string;
+  cli_session_id: string | null;
+  state: ExecutionStateType;
+  started_at: string;
+  completed_at: string | null;
+  event_count: number;
+  pending_question: PendingQuestion | null;
+  cost_usd: number;
+  duration_ms: number;
+  error: string | null;
+  session_type?: string;
+}
+
+export interface ExecutionDetail extends ExecutionSummary {
+  events: CLIEvent[];
+  total_events: number;
+}
+
+// --- AI Workflow Session ---
+export interface StructuredQuestionOption {
+  label: string;
+  description: string;
+}
+
+export interface StructuredQuestion {
+  question: string;
+  header: string;
+  options?: StructuredQuestionOption[];
+  multiSelect: boolean;
+}
+
+export interface QuestionRoundData {
+  roundNumber: number;
+  questions: StructuredQuestion[];
+}
+
+// --- Office Visualization ---
+export type OfficeAgentStatus =
+  | "entering"
+  | "idle"
+  | "working"
+  | "completed"
+  | "failed";
+
+export interface OfficeAgent {
+  name: string;
+  officeStatus: OfficeAgentStatus;
+  agentStatus: AgentStatusType;
+  key_results: KeyResult[];
+  outputs: string[];
+  deskIndex: number;
+  balloonText: string;
+}

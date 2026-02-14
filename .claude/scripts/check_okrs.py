@@ -15,7 +15,7 @@ from pathlib import Path
 
 def extract_agent_sections(content):
     """Extract all agent sections with their status and key results."""
-    pattern = r'## AGENT STATUS:\s*(\S+)\s*-\s*(COMPLETED|NOT COMPLETED|PENDING)(.*?)(?=\n## |\n---\s*\n## |\Z)'
+    pattern = r'## AGENT STATUS:\s*(.+?)\s*-\s*(COMPLETED|NOT COMPLETED|PENDING)(.*?)(?=\n## |\n---\s*\n## |\Z)'
     sections = re.findall(pattern, content, re.S | re.I)
 
     agents = []
@@ -109,6 +109,11 @@ def main():
     pending_agents = [a['name'] for a in agents if a['status'] == 'PENDING']
 
     if pending_agents:
+        # If ALL agents are still PENDING, then no workflow agent has started yet.
+        # The process trying to stop is not a workflow agent (e.g., agent-factory skill
+        # or other utility), so allow it to exit.
+        if len(pending_agents) == len(agents):
+            sys.exit(0)
         print(f"Workflow in progress. PENDING agents: {', '.join(pending_agents)}", file=sys.stderr)
         sys.exit(2)
 

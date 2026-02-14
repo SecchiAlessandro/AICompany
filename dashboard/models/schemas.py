@@ -188,3 +188,55 @@ class SkillInfo(BaseModel):
     name: str
     description: str = ""
     triggers: list[str] = Field(default_factory=list)
+
+
+# --- Execution models ---
+
+class ExecutionStateEnum(str, Enum):
+    STARTING = "starting"
+    RUNNING = "running"
+    AWAITING_INPUT = "awaiting_input"
+    COMPLETED = "completed"
+    FAILED = "failed"
+    STOPPED = "stopped"
+
+
+class CLIEventResponse(BaseModel):
+    timestamp: str
+    event_type: str
+    role: str
+    content: dict = Field(default_factory=dict)
+    raw: Optional[dict] = None
+
+
+class PendingQuestion(BaseModel):
+    text: str
+    context: str = ""
+
+
+class ExecutionSummary(BaseModel):
+    id: str
+    workflow_name: str
+    session_type: str = "execution"
+    cli_session_id: Optional[str] = None
+    state: ExecutionStateEnum = ExecutionStateEnum.STARTING
+    started_at: str = ""
+    completed_at: Optional[str] = None
+    event_count: int = 0
+    pending_question: Optional[PendingQuestion] = None
+    cost_usd: float = 0.0
+    duration_ms: int = 0
+    error: Optional[str] = None
+
+
+class ExecutionDetail(ExecutionSummary):
+    events: list[CLIEventResponse] = Field(default_factory=list)
+    total_events: int = 0
+
+
+class AnswerQuestionRequest(BaseModel):
+    answer: str
+
+
+class WorkflowSessionRequest(BaseModel):
+    goal: str

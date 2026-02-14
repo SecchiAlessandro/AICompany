@@ -53,10 +53,15 @@ export default {
           "0%, 100%": { opacity: "1" },
           "50%": { opacity: "0.5" },
         },
+        "typing-dot": {
+          "0%, 80%, 100%": { transform: "translateY(0)" },
+          "40%": { transform: "translateY(-4px)" },
+        },
       },
       animation: {
         "pulse-glow": "pulse-glow 2s ease-in-out infinite",
         "status-pulse": "status-pulse 1.5s ease-in-out infinite",
+        "typing-dot": "typing-dot 1.2s ease-in-out infinite",
       },
     },
   },

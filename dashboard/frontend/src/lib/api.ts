@@ -27,6 +27,8 @@ import type {
   ResultFile,
   HistoryEntry,
   SkillInfo,
+  ExecutionSummary,
+  ExecutionDetail,
 } from "@/types";
 
 export const api = {
@@ -61,4 +63,38 @@ export const api = {
 
   // Skills
   getSkills: () => fetchJSON<SkillInfo[]>("/skills"),
+
+  // Executions
+  startExecution: (workflowName: string) =>
+    fetchJSON<ExecutionSummary>(`/executions?workflow_name=${encodeURIComponent(workflowName)}`, {
+      method: "POST",
+    }),
+  listExecutions: () => fetchJSON<ExecutionSummary[]>("/executions"),
+  getExecution: (id: string, offset = 0, limit = 200) =>
+    fetchJSON<ExecutionDetail>(`/executions/${id}?offset=${offset}&limit=${limit}`),
+  answerQuestion: (executionId: string, answer: string) =>
+    fetchJSON<ExecutionSummary>(`/executions/${executionId}/answer`, {
+      method: "POST",
+      body: JSON.stringify({ answer }),
+    }),
+  stopExecution: (executionId: string) =>
+    fetchJSON<ExecutionSummary>(`/executions/${executionId}/stop`, {
+      method: "POST",
+    }),
+
+  // Workflow Sessions (AI-assisted)
+  startWorkflowSession: (goal: string) =>
+    fetchJSON<ExecutionSummary>("/workflow-sessions", {
+      method: "POST",
+      body: JSON.stringify({ goal }),
+    }),
+  answerWorkflowQuestion: (sessionId: string, answer: string) =>
+    fetchJSON<ExecutionSummary>(`/workflow-sessions/${sessionId}/answer`, {
+      method: "POST",
+      body: JSON.stringify({ answer }),
+    }),
+  stopWorkflowSession: (sessionId: string) =>
+    fetchJSON<ExecutionSummary>(`/workflow-sessions/${sessionId}/stop`, {
+      method: "POST",
+    }),
 };

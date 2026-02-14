@@ -1,5 +1,6 @@
 import YAML from "yaml";
 import { SKILL_SUGGESTIONS } from "./constants";
+import type { RoleAnswers } from "@/stores/workflowBuilderStore";
 
 interface BuilderAnswers {
   q1?: string; // goal
@@ -15,71 +16,142 @@ interface BuilderAnswers {
   q11?: string; // tools
 }
 
-export function generateWorkflowYaml(answers: BuilderAnswers): string {
+export function generateWorkflowYaml(answers: BuilderAnswers, manualRoles?: RoleAnswers[]): string {
   const name = deriveWorkflowName(answers.q1 || "unnamed-workflow");
-  const roleCount = parseRoleCount(answers.q4 || "auto", answers);
-  const keyResults = parseLines(answers.q5);
-  const validations = parseLines(answers.q6);
-  const inputs = parseLines(answers.q3);
-  const deliverables = parseLines(answers.q2);
   const knowledgeSources = parseLines(answers.q7);
   const preconditions = parseLines(answers.q8);
+  const deliverables = parseLines(answers.q2);
+
+  const hasManualRoles = manualRoles && manualRoles.some((r) => r.name.trim() !== "");
 
   const roles = [];
-  for (let i = 0; i < roleCount; i++) {
-    const roleName = deriveRoleName(i, roleCount, deliverables, answers);
-    const roleDeliverables = distributeItems(deliverables, i, roleCount);
-    const roleInputs = i === 0 ? inputs : [`Output from previous role`];
-    const roleKRs = distributeItems(keyResults, i, roleCount);
-    const roleValidations = distributeItems(validations, i, roleCount);
-    const suggestedSkills = inferSkills(roleDeliverables);
 
-    const role: Record<string, unknown> = {
-      role: roleName,
-      description: `Handles ${roleDeliverables.join(", ") || "processing"}`,
-      tools: [
-        { name: "Read", purpose: "Read input files and references" },
-        { name: "Write", purpose: "Create output files" },
-      ],
-    };
+  if (hasManualRoles) {
+    for (let i = 0; i < manualRoles!.length; i++) {
+      const mr = manualRoles![i];
+      if (!mr.name.trim()) continue;
 
-    if (suggestedSkills.length > 0) {
-      role.skills = suggestedSkills.map((s) => ({
-        name: s,
-        purpose: `Process ${s}-related outputs`,
-      }));
+      const objectives = parseLines(mr.objectives);
+      const krs = parseLines(mr.keyResults);
+      const ioLines = parseLines(mr.inputsOutputs);
+      const roleDeliverables = ioLines
+        .map((l) => l.split("->").pop()?.trim())
+        .filter(Boolean) as string[];
+      const suggestedSkills = inferSkills([...roleDeliverables, ...deliverables]);
+
+      const role: Record<string, unknown> = {
+        role: mr.name.trim(),
+        description: mr.description.trim() || `Handles ${mr.name.trim()} tasks`,
+        tools: [
+          { name: "Read", purpose: "Read input files and references" },
+          { name: "Write", purpose: "Create output files" },
+        ],
+      };
+
+      if (suggestedSkills.length > 0) {
+        role.skills = suggestedSkills.map((s) => ({
+          name: s,
+          purpose: `Process ${s}-related outputs`,
+        }));
+      }
+
+      if (knowledgeSources.length > 0 && i === 0) {
+        role.knowledge_sources = knowledgeSources.map((ks) => ({
+          name: ks.split("/").pop() || ks,
+          purpose: "Reference material",
+          path: ks,
+        }));
+      }
+
+      role.inputs_outputs = ioLines.length > 0
+        ? ioLines.map((line) => {
+            const parts = line.split("->");
+            if (parts.length === 2) {
+              return { inputs: parts[0].trim(), outputs: parts[1].trim() };
+            }
+            return { inputs: line.trim() };
+          })
+        : [{ inputs: "Input data" }, { outputs: "Processed output" }];
+
+      if (preconditions.length > 0 && i === 0) {
+        role.preconditions = preconditions.map((p) => ({
+          name: p.split(" ").slice(0, 3).join("-").toLowerCase(),
+          description: p,
+          verification: `Verify: ${p}`,
+        }));
+      }
+
+      role.okr = {
+        objectives: objectives.length > 0 ? objectives : [`Complete ${mr.name.trim()} deliverables`],
+        key_results: krs.map((kr) => ({
+          result: kr,
+          validation: [`${kr} is verified`],
+        })),
+      };
+
+      roles.push(role);
     }
+  } else {
+    const roleCount = parseRoleCount(answers.q4 || "auto", answers);
+    const keyResults = parseLines(answers.q5);
+    const validations = parseLines(answers.q6);
+    const inputs = parseLines(answers.q3);
 
-    if (knowledgeSources.length > 0 && i === 0) {
-      role.knowledge_sources = knowledgeSources.map((ks) => ({
-        name: ks.split("/").pop() || ks,
-        purpose: "Reference material",
-        path: ks,
-      }));
+    for (let i = 0; i < roleCount; i++) {
+      const roleName = deriveRoleName(i, roleCount, deliverables, answers);
+      const roleDeliverables = distributeItems(deliverables, i, roleCount);
+      const roleInputs = i === 0 ? inputs : [`Output from previous role`];
+      const roleKRs = distributeItems(keyResults, i, roleCount);
+      const roleValidations = distributeItems(validations, i, roleCount);
+      const suggestedSkills = inferSkills(roleDeliverables);
+
+      const role: Record<string, unknown> = {
+        role: roleName,
+        description: `Handles ${roleDeliverables.join(", ") || "processing"}`,
+        tools: [
+          { name: "Read", purpose: "Read input files and references" },
+          { name: "Write", purpose: "Create output files" },
+        ],
+      };
+
+      if (suggestedSkills.length > 0) {
+        role.skills = suggestedSkills.map((s) => ({
+          name: s,
+          purpose: `Process ${s}-related outputs`,
+        }));
+      }
+
+      if (knowledgeSources.length > 0 && i === 0) {
+        role.knowledge_sources = knowledgeSources.map((ks) => ({
+          name: ks.split("/").pop() || ks,
+          purpose: "Reference material",
+          path: ks,
+        }));
+      }
+
+      role.inputs_outputs = [
+        ...roleInputs.map((inp) => ({ inputs: inp })),
+        ...roleDeliverables.map((out) => ({ outputs: out })),
+      ];
+
+      if (preconditions.length > 0 && i === 0) {
+        role.preconditions = preconditions.map((p) => ({
+          name: p.split(" ").slice(0, 3).join("-").toLowerCase(),
+          description: p,
+          verification: `Verify: ${p}`,
+        }));
+      }
+
+      role.okr = {
+        objectives: [roleKRs.length > 0 ? `Complete ${roleName} deliverables` : `Process assigned tasks`],
+        key_results: roleKRs.map((kr, j) => ({
+          result: kr,
+          validation: roleValidations[j] ? [roleValidations[j]] : [`${kr} is verified`],
+        })),
+      };
+
+      roles.push(role);
     }
-
-    role.inputs_outputs = [
-      ...roleInputs.map((inp) => ({ inputs: inp })),
-      ...roleDeliverables.map((out) => ({ outputs: out })),
-    ];
-
-    if (preconditions.length > 0 && i === 0) {
-      role.preconditions = preconditions.map((p) => ({
-        name: p.split(" ").slice(0, 3).join("-").toLowerCase(),
-        description: p,
-        verification: `Verify: ${p}`,
-      }));
-    }
-
-    role.okr = {
-      objectives: [roleKRs.length > 0 ? `Complete ${roleName} deliverables` : `Process assigned tasks`],
-      key_results: roleKRs.map((kr, j) => ({
-        result: kr,
-        validation: roleValidations[j] ? [roleValidations[j]] : [`${kr} is verified`],
-      })),
-    };
-
-    roles.push(role);
   }
 
   const workflow = {
